@@ -1,7 +1,7 @@
 Nombre del curso: Lenguajes de programación
 Número de semestre y año lectivo: 2 Semestre 2025
-Nombre de los estudiantes: Geovanni González Aguilar, Daryll Martinez [Segundo apellido]
-Número de carnet: 2022163324, [Carnet Daryll]
+Nombre de los estudiantes: Geovanni González Aguilar, Daryll Martinez Rodriguez, Gerny Díaz Hall
+Número de carnet: 2022163324, 2019271231, 2022172980
 Numero de proyecto programado: 1
 Fecha de entrega: 
 Estatus de la entrega: Excelente
