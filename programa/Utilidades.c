@@ -1,26 +1,22 @@
 #include "Utilidades.h"
 #include <string.h>
+#include <ctype.h>
+#include <stdio.h>
 
-int validarStringAlfa(char *string, int largo){
-    if (strlen(string)==largo){
-        for (int i=0;i<=largo;i++){
-            if (!isalpha(string[i])){
-                return 0;
-            }
+bool validarCedulaUnica(const char* cedula, Cliente* arregloClientes, int cantidadDeClientes) {
+    for (int i = 0; i < cantidadDeClientes; i++) {
+        if (strcmp(arregloClientes[i].cedula, cedula) == 0) {
+            return false; // ya existe
         }
-        return 1;
     }
-    return 0;
+    return true;
 }
 
-int validarStringNumerico(char *string, int largo){
-    if (strlen(string)==largo){
-        for (int i=0;i<=largo;i++){
-            if (!isdigit(string[i])){
-                return 0;
-            }
-        }
-        return 1;
+bool validarTelefono(const char* telefono) {
+    int len = strlen(telefono);
+    if (len < 8) return false;
+    for (int i = 0; i < len; i++) {
+        if (!isdigit(telefono[i])) return false;
     }
-    return 0;
+    return true;
 }

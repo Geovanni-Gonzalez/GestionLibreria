@@ -2,31 +2,31 @@
 TARGET = libreria.exe
 
 # Compilador y banderas
-CC = g++
-CFLAGS = -Wall -Wextra -std=c11
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c11 -I./include
 
-# Archivos fuente y objetos
-SRC = main.c Libro.c Cliente.c Pedido.c Estadistica.c Utilidades.c
+# Todos los archivos .c en la carpeta
+SRC = $(wildcard *.c)
+
+# Convertir cada .c en .o
 OBJ = $(SRC:.c=.o)
 
-# Carpeta de includes
-INC = include
-
-# Regla por defecto
+# Regla principal
 all: $(TARGET)
 
-# Enlazar objetos para crear ejecutable
+# Enlazado final
 $(TARGET): $(OBJ)
 	$(CC) $(OBJ) -o $(TARGET)
 
-# Compilar cada .c a .o
+# Regla implícita: cómo compilar .c -> .o
 %.o: %.c
-	$(CC) $(CFLAGS) -I$(INC) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Limpiar archivos compilados
 clean:
-	del /Q *.o *.exe
+	rm -f $(OBJ) $(TARGET)
 
-# Ejecutar el programa
+# Ejecutar programa
 run: $(TARGET)
-	./$(TARGET)
+	./$(TARGET) || true
+
