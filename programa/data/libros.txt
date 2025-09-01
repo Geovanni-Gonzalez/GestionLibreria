@@ -1,0 +1,4 @@
+L001;Cien años de soledad;Gabriel Garcia Marquez;9500.50;10
+L002;Rayuela;Julio Cortazar;8700.00;5
+L003;El Quijote;Miguel de Cervantes;12000.75;8
+L004;EL FInal Del Mundo;Brandon Varela;800000.87;3
