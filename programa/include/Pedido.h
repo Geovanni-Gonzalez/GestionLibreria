@@ -47,6 +47,17 @@ typedef struct {
     float subtotal;            /**< Monto antes de aplicar el impuesto. */
     float impuesto;            /**< Monto correspondiente al impuesto aplicado. */
     float total;               /**< Monto total del pedido (subtotal + impuesto). */
+    char** codigosLibros;     /**< Arreglo dinámico de códigos de los libros incluidos en el pedido. */
+    bool facturado;          /**< Indica si el pedido ha sido facturado (true) o no (false). */
+
 } Pedido;
+
+/***
+ * @brief Remueve un libro del la lista mientras se crea un pedido.
+ * @param codigoLibro Código del libro a remover.
+ * @param pedido Puntero al pedido del cual se desea remover el libro.
+ * @return void
+ */
+void removerLibroDeListaPedido(char* codigoLibro, Pedido* pedido);
 
 #endif /* PEDIDO_H */
