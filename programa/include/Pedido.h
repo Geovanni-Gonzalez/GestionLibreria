@@ -8,6 +8,8 @@
 
 #ifndef PEDIDO_H
 #define PEDIDO_H
+#include <stdbool.h>
+#include "Libro.h"
 
 /**
  * @def MAX_ID
@@ -47,8 +49,11 @@ typedef struct {
     float subtotal;            /**< Monto antes de aplicar el impuesto. */
     float impuesto;            /**< Monto correspondiente al impuesto aplicado. */
     float total;               /**< Monto total del pedido (subtotal + impuesto). */
-    char** codigosLibros;     /**< Arreglo dinámico de códigos de los libros incluidos en el pedido. */
-    bool facturado;          /**< Indica si el pedido ha sido facturado (true) o no (false). */
+    Libro* libros;          /**< Arreglo dinámico de libros incluidos en el pedido. */
+    bool generado;          /**< Indica si el pedido ha sido generado (true) o no (false). */
+    int cantidadLibros;      /**< Cantidad de libros en el pedido. */
+    int *cantidadPorLibro;   /**< Arreglo dinámico que almacena la cantidad de cada libro en el pedido. */
+    
 
 } Pedido;
 
@@ -60,4 +65,6 @@ typedef struct {
  */
 void removerLibroDeListaPedido(char* codigoLibro, Pedido* pedido);
 
+
+void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9], Pedido* arregloPedidos, int* cantidadPedidosActual);
 #endif /* PEDIDO_H */

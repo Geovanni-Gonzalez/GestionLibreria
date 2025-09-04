@@ -1,4 +1,5 @@
 #include "Pedido.h"
+#include "Utilidades.h"
 #include <stdlib.h>
 
 /***
@@ -8,31 +9,55 @@
  * @return void
  */
 void removerLibroDeListaPedido(char* codigoLibro, Pedido* pedido) {
-    if (pedido->cantidadLibros <= 0) {
-        printf("No hay libros para remover.\n");
-        return; // No hay libros para remover
-    }
-
     int indice = -1;
     for (int i = 0; i < pedido->cantidadLibros; i++) {
-        if (strcmp(pedido->codigosLibros[i], codigoLibro) == 0) {
+        if (strcmp(pedido->libros[i].codigo, codigoLibro) == 0) {
             indice = i;
             break;
         }
     }
+
     if (indice == -1) {
         printf("Código de libro no encontrado en el pedido.\n");
-        return; 
+        return;
     }
 
-    free(pedido->codigosLibros[indice]);
+    free(pedido->libros[indice]);   // Liberar memoria del libro eliminado
 
-    // Ajusta el arreglo de códigos de libros
-    for (int i = indice; i < pedido->cantidadLibros - 1; i++) {
-        pedido->codigosLibros[i] = pedido->codigosLibros[i + 1];
+    if (indice != -1) {
+        for (int i = indice; i < pedido->cantidadLibros - 1; i++) {
+            pedido->libros[i] = pedido->libros[i + 1];
+        }
+        pedido->cantidadLibros--;
+        pedido->libros = realloc(pedido->libros, pedido->cantidadLibros * sizeof(Libro));
     }
 
-    // Reduce el tamaño del arreglo
-    pedido->cantidadLibros--;
-    pedido->codigosLibros = realloc(pedido->codigosLibros, pedido->cantidadLibros * sizeof(char*));
+    printf("Libro con código %s removido del pedido exitosamente.\n", codigoLibro);
+}
+
+void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9], Pedido* arregloPedidos, int* cantidadPedidosActual) {
+
+    // 1. Generar ID del pedido
+    char* idGenerado = generarIDPedido(cantidadPedidosActual);
+    strcpy(pedido->id, idGenerado);
+    free(idGenerado);
+    // 2. Asociar cedula y fecha al pedido
+    strcpy(pedido->cedula, cedulaCliente);
+    strcpy(pedido->fecha, fechaPedido);
+
+    // 3. Se calcula subtotal, impuesto y total
+    calcularPreciosPedido(pedido);
+
+    // 4. Marcar el pedido como generado
+    pedido->generado = true;
+
+    // 5. Agregar el pedido al arreglo de pedidos y actualizar la cantidad
+    arregloPedidos[*cantidadPedidosActual] = *pedido;
+    (*cantidadPedidosActual)+=1;
+
+
+
+
+    
+
 }
