@@ -20,5 +20,8 @@ int main() {
         printf("Error al cargar la configuración.\n");
     }
 
+
+    
+
     return 0;
 }

@@ -34,6 +34,8 @@ bool registrarCliente(const char* cedula, const char* nombre, const char* telefo
     strcpy(arregloClientes[cantidadClientesActual].nombre, nombre);
     strcpy(arregloClientes[cantidadClientesActual].telefono, telefono);
     cantidadClientesActual++;
+    
+    agregarClienteArchivo(cedula, nombre, telefono);
 
     printf("Cliente registrado correctamente.\n");
     return true;
@@ -57,20 +59,16 @@ Cliente *obtenerClientePorCedula(const char *cedula) {
     return NULL; 
 }
 
-void mostrarDetalleCliente(const char *cedula) {
-    Cliente *cliente = obtenerClientePorCedula(cedula);
-    if (cliente) {
-        printf("\n--- Detalle del Cliente ---\n");
-        printf("Cédula: %s\n", cliente->cedula);
-        printf("Nombre: %s\n", cliente->nombre);
-        printf("Teléfono: %s\n", cliente->telefono);
-    } else {
-        printf("Cliente con cédula %s no encontrado.\n", cedula);
+
+void agregarClienteArchivo(const char* cedula, const char* nombre, const char* telefono) {
+    FILE *archivo = fopen("data/clientes.txt", "a");
+    if (archivo == NULL) {
+        printf("Error al abrir el archivo de clientes.\n");
+        return;
     }
+    fprintf(archivo, "%s;%s;%s\n", cedula, nombre, telefono);
+    fclose(archivo);
 }
-
-
-
 
 // Liberar memoria al final
 void liberarMemoriaClientes() {

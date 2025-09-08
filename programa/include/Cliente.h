@@ -74,4 +74,11 @@ void mostrarClientes();
  */
 void liberarMemoriaClientes();
 
+
+Cliente *obtenerClientePorCedula(const char *cedula);
+
+
+void agregarClienteArchivo(const char* cedula, const char* nombre, const char* telefono);
+
+
 #endif

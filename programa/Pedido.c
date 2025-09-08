@@ -10,7 +10,7 @@
  * @brief Remueve un libro del la lista mientras se crea un pedido.
  * @param codigoLibro Código del libro a remover.
  * @param pedido Puntero al pedido del cual se desea remover el libro.
- * @return void
+ * @return void 
  */
 void removerLibroDeListaPedido(char* codigoLibro, Pedido* pedido) {
     int indice = -1;
