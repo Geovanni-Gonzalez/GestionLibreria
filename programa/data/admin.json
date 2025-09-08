@@ -5,5 +5,5 @@
     "telefono": "555-1234",
     "cedulaJuridica": "123456789",
     "horarioAtencion": "Lunes a Viernes 9:00-18:00",
-    "numeroDeSiguientePedido": 1
+    "numeroSiguientePedido": 1
 }
