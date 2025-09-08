@@ -10,6 +10,7 @@
 #define PEDIDO_H
 #include <stdbool.h>
 #include "Libro.h"
+#include "Config.h"
 
 /**
  * @def MAX_ID
@@ -66,7 +67,11 @@ typedef struct {
 void removerLibroDeListaPedido(char* codigoLibro, Pedido* pedido);
 
 
-void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9], Pedido* arregloPedidos, int* cantidadPedidosActual);
+void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9], Pedido* arregloPedidos, int* cantidadPedidosActual, Config cfg);
+
+void mostrarDetallePedido(Pedido* pedido, Config cfg);
+
+
 
 
 #endif /* PEDIDO_H */

@@ -1,5 +1,7 @@
 #include "Pedido.h"
 #include "Utilidades.h"
+#include "Cliente.h"    
+#include "Config.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -36,7 +38,29 @@ void removerLibroDeListaPedido(char* codigoLibro, Pedido* pedido) {
     printf("Libro con código %s removido del pedido exitosamente.\n", codigoLibro);
 }
 
-void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9], Pedido* arregloPedidos, int* cantidadPedidosActual) {
+
+void mostrarDetallePedido(Pedido* pedido, Config cfg) {
+    Cliente* cliente = obtenerClientePorCedula(pedido->cedula);
+    if (!cliente) {
+        printf("Cliente no encontrado.\n");
+        return;
+    }
+
+    printf("\n--- DETALLE PEDIDO ---\n");
+    printf("ID del Pedido: %s\n", pedido->id);
+    printf("Fecha: %s\n", pedido->fecha);
+    printf("Cliente: %s (Cédula: %s, Tel: %s)\n", cliente->nombre, cliente->cedula, cliente->telefono);
+    printf("Subtotal: %.2f\n", pedido->subtotal);
+    printf("Impuesto (13%%): %.2f\n", pedido->impuesto);
+    printf("Total: %.2f\n", pedido->total);
+    printf("--- %s ---\n", cfg.nombreLocalComercial);
+    printf("Teléfono: %s | Cédula Jurídica: %s\n", cfg.telefono, cfg.cedulaJuridica);
+    printf("Horario de Atención: %s\n", cfg.horarioAtencion);
+    printf("----------------------\n");
+
+}
+
+void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9], Pedido* arregloPedidos, int* cantidadPedidosActual, Config cfg) {
 
     // 1. Generar ID del pedido
     char* idGenerado = generarIDPedido(cantidadPedidosActual);
@@ -59,6 +83,7 @@ void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9], 
     arregloPedidos[*cantidadPedidosActual] = *pedido;
     (*cantidadPedidosActual)+=1;
 
-   //Mostrar detalle del pedido
+   //Mostrar detalle del pedido (Generar factura)
+    mostrarDetallePedido(pedido, cfg);
 
 }

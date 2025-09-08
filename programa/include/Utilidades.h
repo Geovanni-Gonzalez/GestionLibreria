@@ -4,6 +4,7 @@
 #include "Cliente.h"
 #include "Pedido.h"
 #include "Libro.h"
+#include "Config.h"
 /**
  * @file Utilidades.h
  * @brief Declaraciones de funciones utilitarias para validación de datos.
@@ -37,6 +38,9 @@ void descontarStockLibro(Libro *libro, int *cantidadPorLibro, int cantidadLibros
 void calcularPreciosPedido(Pedido *pedido);
 
 char* leerArchivo(const char* nombre);
+
+
+
 
 
 #endif

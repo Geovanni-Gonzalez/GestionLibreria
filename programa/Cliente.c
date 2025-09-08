@@ -48,6 +48,30 @@ void mostrarClientes() {
     }
 }
 
+Cliente *obtenerClientePorCedula(const char *cedula) {
+    for (int i = 0; i < cantidadClientesActual; i++) {
+        if (strcmp(arregloClientes[i].cedula, cedula) == 0) {
+            return &arregloClientes[i];
+        }
+    }
+    return NULL; 
+}
+
+void mostrarDetalleCliente(const char *cedula) {
+    Cliente *cliente = obtenerClientePorCedula(cedula);
+    if (cliente) {
+        printf("\n--- Detalle del Cliente ---\n");
+        printf("Cédula: %s\n", cliente->cedula);
+        printf("Nombre: %s\n", cliente->nombre);
+        printf("Teléfono: %s\n", cliente->telefono);
+    } else {
+        printf("Cliente con cédula %s no encontrado.\n", cedula);
+    }
+}
+
+
+
+
 // Liberar memoria al final
 void liberarMemoriaClientes() {
     free(arregloClientes);

@@ -114,3 +114,5 @@ char* leerArchivo(const char* nombre) {
     return data;
 }
 
+
+void mostrarDetallePedido
