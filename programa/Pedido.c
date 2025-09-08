@@ -1,6 +1,8 @@
 #include "Pedido.h"
 #include "Utilidades.h"
 #include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 /***
  * @brief Remueve un libro del la lista mientras se crea un pedido.
@@ -22,7 +24,6 @@ void removerLibroDeListaPedido(char* codigoLibro, Pedido* pedido) {
         return;
     }
 
-    free(pedido->libros[indice]);   // Liberar memoria del libro eliminado
 
     if (indice != -1) {
         for (int i = indice; i < pedido->cantidadLibros - 1; i++) {
@@ -51,13 +52,13 @@ void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9], 
     // 4. Marcar el pedido como generado
     pedido->generado = true;
 
-    // 5. Agregar el pedido al arreglo de pedidos y actualizar la cantidad
+    // 5. Descontar el stock de los libros en el pedido
+    descontarStockLibro(pedido->libros, pedido->cantidadPorLibro, pedido->cantidadLibros);
+
+    // 6. Agregar el pedido al arreglo de pedidos y actualizar la cantidad
     arregloPedidos[*cantidadPedidosActual] = *pedido;
     (*cantidadPedidosActual)+=1;
 
-
-
-
-    
+   //Mostrar detalle del pedido
 
 }

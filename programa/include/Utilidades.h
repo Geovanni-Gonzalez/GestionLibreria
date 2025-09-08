@@ -32,7 +32,7 @@ bool validarTelefono(const char* telefono);
 
 char* generarIDPedido(int *totalPedidos);
 
-void descontarStockLibro(Libro *libro, int *cantidadPorLibro);
+void descontarStockLibro(Libro *libro, int *cantidadPorLibro, int cantidadLibros);
 
 void calcularPreciosPedido(Pedido *pedido);
 

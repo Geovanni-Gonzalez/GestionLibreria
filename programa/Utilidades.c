@@ -2,6 +2,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 bool validarCedulaUnica(const char* cedula, Cliente* arregloClientes, int cantidadDeClientes) {
     for (int i = 0; i < cantidadDeClientes; i++) {
@@ -44,8 +45,54 @@ void descontarStockLibro(Libro *libro, int *cantidadPorLibro, int cantidadLibros
         printf("Error al abrir el archivo de libros.\n");
         return;
     }
+    Libro libros[100]; // Suponiendo un máximo de 100 libros
+    int totalLibros = 0;
+    char linea[256];
 
+    // Leer los libros del archivo
+    while (fgets(linea, sizeof(linea), archivo)) {
+        char *token = strtok(linea, ";");
+        if (token) {
+            libros[totalLibros].codigo = strdup(token);
+            token = strtok(NULL, ",");
+            if (token) {
+                libros[totalLibros].titulo = strdup(token);
+                token = strtok(NULL, ",");
+                if (token) {
+                    libros[totalLibros].autor = strdup(token);
+                    token = strtok(NULL, ",");
+                    if (token) {
+                        libros[totalLibros].precio = atof(token);
+                        token = strtok(NULL, ",");
+                        if (token) {
+                            libros[totalLibros].cantidad = atoi(token);
+                            totalLibros++;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
+    // Actualizar el stock de los libros
+    for (int i = 0; i < cantidadLibros; i++) {
+        for (int j = 0; j < totalLibros; j++) {
+            if (strcmp(libros[j].codigo, libro[i].codigo) == 0) {
+                libros[j].cantidad -= cantidadPorLibro[i];
+                break;
+            }
+        }
+    }
+
+    // Escribir los libros actualizados de nuevo en el archivo
+    archivo = fopen(rutaArchivo, "w");
+    if (!archivo) {
+        printf("Error al abrir el archivo de libros.\n");
+        return;
+    }
+    for (int i = 0; i < totalLibros; i++) {
+        fprintf(archivo, "%s;%s,%s,%f,%d\n", libros[i].codigo, libros[i].titulo, libros[i].autor, libros[i].precio, libros[i].cantidad);
+    }
 
     fclose(archivo);
 }

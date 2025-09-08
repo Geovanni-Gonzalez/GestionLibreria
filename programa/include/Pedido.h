@@ -67,4 +67,6 @@ void removerLibroDeListaPedido(char* codigoLibro, Pedido* pedido);
 
 
 void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9], Pedido* arregloPedidos, int* cantidadPedidosActual);
+
+
 #endif /* PEDIDO_H */
