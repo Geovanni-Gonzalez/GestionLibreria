@@ -36,7 +36,7 @@ void descontarStockLibro(Libro *libro, int *cantidadPorLibro, int cantidadLibros
 
 void calcularPreciosPedido(Pedido *pedido);
 
-
+char* leerArchivo(const char* nombre);
 
 
 #endif

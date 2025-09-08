@@ -97,4 +97,20 @@ void descontarStockLibro(Libro *libro, int *cantidadPorLibro, int cantidadLibros
     fclose(archivo);
 }
 
+char* leerArchivo(const char* nombre) {
+    FILE* f = fopen(nombre, "rb");
+    if (!f) {
+        printf("No se pudo abrir %s\n", nombre);
+        return NULL;
+    }
+    fseek(f, 0, SEEK_END);
+    long len = ftell(f);
+    rewind(f);
+
+    char* data = (char*)malloc(len + 1);
+    fread(data, 1, len, f);
+    data[len] = '\0';
+    fclose(f);
+    return data;
+}
 
