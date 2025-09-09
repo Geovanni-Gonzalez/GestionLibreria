@@ -22,6 +22,14 @@
  *******************************/
 
 /**
+ * @file Utilidades.h
+ * @brief Declaraciones de funciones utilitarias para validación de datos.
+ *
+ * Este archivo contiene las declaraciones de funciones para validar
+ * cédulas únicas y números de teléfono.
+ */ 
+
+/**
  * @brief Verifica si la cédula proporcionada es única entre los clientes registrados.
  * 
  * @param cedula Cédula a validar.
@@ -40,6 +48,9 @@ bool validarCedulaUnica(const char* cedula, Cliente* arregloClientes, int cantid
 bool validarTelefono(const char* telefono);
 
 
+int generarCodigoUnicoLibro(Libro* libros, int totalLibros, char* nuevoCodigo);/*******************************
+ * Funciones para pedidos
+ *******************************/
 
 /**
  * @brief Genera un ID para un pedido basado en el total actual de pedidos.
