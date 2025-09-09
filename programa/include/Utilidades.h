@@ -39,9 +39,7 @@ bool validarCedulaUnica(const char* cedula, Cliente* arregloClientes, int cantid
  */
 bool validarTelefono(const char* telefono);
 
-/*******************************
- * Funciones para pedidos
- *******************************/
+
 
 /**
  * @brief Genera un ID para un pedido basado en el total actual de pedidos.
