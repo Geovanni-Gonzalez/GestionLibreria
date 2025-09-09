@@ -73,5 +73,43 @@ void mostrarClientes();
  * @post La memoria asignada a la lista de clientes queda liberada.
  */
 void liberarMemoriaClientes();
+/**
+ * @brief Obtiene un cliente a partir de su número de cédula.
+ *
+ * Busca en la lista de clientes el que tenga la cédula especificada.
+ *
+ * @param cedula Cadena de caracteres que representa la cédula del cliente.
+ * @return Puntero al Cliente encontrado, o NULL si no existe.
+ */
+Cliente *obtenerClientePorCedula(const char *cedula);
+
+/**
+ * @brief Agrega un cliente al archivo de almacenamiento.
+ *
+ * Guarda los datos del cliente en el archivo correspondiente.
+ *
+ * @param cedula Cadena de caracteres que representa la cédula del cliente.
+ * @param nombre Cadena de caracteres que representa el nombre del cliente.
+ * @param telefono Cadena de caracteres que representa el teléfono del cliente.
+ */
+void agregarClienteArchivo(const char* cedula, const char* nombre, const char* telefono);
+
+/**
+ * @brief Inicializa el arreglo de clientes en memoria.
+ *
+ * Prepara la estructura interna para almacenar clientes.
+ */
+void inicializarArregloClientes();
+
+/**
+ * @brief Imprime la información de un cliente en la salida estándar.
+ *
+ * Muestra los datos del cliente especificado.
+ *
+ * @param cliente Puntero constante al Cliente cuya información se va a imprimir.
+ */
+void imprimirInformacionCliente(const Cliente *cliente);
+
+
 
 #endif
