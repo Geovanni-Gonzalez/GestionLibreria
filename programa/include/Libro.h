@@ -66,8 +66,8 @@ void liberarLibros(Libro* libros, int totalLibros);
  * @param cantidad Cantidad inicial del libro.
  */
 void agregarLibro(Libro** libros, int* totalLibros,
-                  const char* titulo, const char* autor,
-                  float precio, int cantidad);
+                    const char* titulo, const char* autor,
+                    float precio, int cantidad);
 
 /**
  * @brief Carga el inventario completo desde un archivo.

@@ -1,5 +1,6 @@
 #include "Cliente.h"
 #include "Utilidades.h"
+#include "Pedido.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -101,4 +102,23 @@ void liberarMemoriaClientes() {
     arregloClientes = NULL;
     cantidadClientesActual = 0;
     capacidadDeClientesArreglo = 0;
+}
+
+void consultaDeCliente(char* cedula) {
+    Cliente* cliente = obtenerClientePorCedula(cedula);
+    imprimirInformacionCliente(cliente);
+
+    //Imprimir pedidos del cliente
+    int cantidadPedidosCliente = 0;
+    Pedido* pedidosCliente = obtenerPedidosPorCliente(cedula, NULL, 0, &cantidadPedidosCliente);
+    if (pedidosCliente == NULL || cantidadPedidosCliente == 0) {
+        printf("El cliente no tiene pedidos registrados.\n");
+    } else {
+        printf("\n--- Pedidos del Cliente ---\n");
+        for (int i = 0; i < cantidadPedidosCliente; i++) {
+            printf("%d) ID: %s, Fecha: %s, Subtotal: %.2f, Impuesto: %.2f, Total: %.2f, Cantidad de Libros: %d\n", 
+                    i+1, pedidosCliente[i].id, pedidosCliente[i].fecha, pedidosCliente[i].subtotal, pedidosCliente[i].impuesto, pedidosCliente[i].total, pedidosCliente[i].cantidadLibros);
+        }
+        free(pedidosCliente); 
+    }
 }

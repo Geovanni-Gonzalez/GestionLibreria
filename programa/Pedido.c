@@ -6,6 +6,22 @@
 #include <string.h>
 #include <stdio.h>
 
+
+Pedido* arregloPedidos = NULL;     // Arreglo dinámico
+int cantidadPedidosActual = 0;      // Cantidad actual de pedidos
+int capacidadDePedidosArreglo = 2;  // Tamaño inicial del arreglo
+
+
+void inicializarArregloPedidos() {
+    arregloPedidos = (Pedido*) malloc(capacidadDePedidosArreglo * sizeof(Pedido));
+    if (arregloPedidos == NULL) {
+        printf("Error al asignar memoria.\n");
+        exit(1);
+    }
+    cargarPedidosDesdeArchivo(&arregloPedidos, &cantidadPedidosActual, &capacidadDePedidosArreglo);
+}
+
+
 /***
  * @brief Remueve un libro del la lista mientras se crea un pedido.
  * @param codigoLibro Código del libro a remover.
@@ -86,4 +102,24 @@ void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9], 
    //Mostrar detalle del pedido (Generar factura)
     mostrarDetallePedido(pedido, cfg);
 
+}
+
+Pedido* obtenerPedidosPorCliente(char* cedulaCliente, Pedido* arregloPedidos, int cantidadPedidosActual, int* cantidadPedidosCliente){
+    Pedido* pedidosCliente = NULL;
+    *cantidadPedidosCliente = 0;
+
+    for (int i = 0; i < cantidadPedidosActual; i++) {
+        if (strcmp(arregloPedidos[i].cedula, cedulaCliente) == 0) {
+            pedidosCliente = realloc(pedidosCliente, sizeof(Pedido) * (*cantidadPedidosCliente + 1));
+            if (!pedidosCliente) {
+                printf("Error al asignar memoria para los pedidos del cliente.\n");
+                *cantidadPedidosCliente = 0;
+                return NULL;
+            }
+            pedidosCliente[*cantidadPedidosCliente] = arregloPedidos[i];
+            (*cantidadPedidosCliente)++;
+        }
+    }
+
+    return pedidosCliente;
 }

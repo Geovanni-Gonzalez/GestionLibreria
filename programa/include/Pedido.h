@@ -56,6 +56,9 @@ typedef struct {
     int *cantidadPorLibro;   /**< Arreglo dinámico que almacena la cantidad de cada libro en el pedido. */
 } Pedido;
 
+
+void inicializarArregloPedidos();
+
 /***
  * @brief Remueve un libro del la lista mientras se crea un pedido.
  * @param codigoLibro Código del libro a remover.
@@ -69,7 +72,14 @@ void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9], 
 
 void mostrarDetallePedido(Pedido* pedido, Config cfg);
 
-
-
+/**
+ * @brief Obtiene todos los pedidos realizados por un cliente específico.
+ * @param cedulaCliente Cédula del cliente cuyos pedidos se desean obtener.
+ * @param arregloPedidos Arreglo de todos los pedidos existentes.
+ * @param cantidadPedidosActual Cantidad actual de pedidos en el arreglo.
+ * @param cantidadPedidosCliente Puntero a entero donde se almacenará la cantidad de pedidos del cliente.
+ * @return Arreglo dinámico de pedidos realizados por el cliente (debe liberarse con free), o NULL si no tiene pedidos.
+ */
+Pedido* obtenerPedidosPorCliente(char* cedulaCliente, Pedido* arregloPedidos, int cantidadPedidosActual, int* cantidadPedidosCliente);
 
 #endif /* PEDIDO_H */
