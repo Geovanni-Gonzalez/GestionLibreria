@@ -2,6 +2,7 @@
 #define UTILIDADES_H
 #include <stdbool.h>
 #include "Cliente.h"
+
 /**
  * @file Utilidades.h
  * @brief Declaraciones de funciones utilitarias para validación de datos.
@@ -27,6 +28,6 @@ bool validarCedulaUnica(const char* cedula, Cliente* arregloClientes, int cantid
  */
 bool validarTelefono(const char* telefono);
 
-
+int generarCodigoUnicoLibro(Libro* libros, int totalLibros, char* nuevoCodigo);
 
 #endif
