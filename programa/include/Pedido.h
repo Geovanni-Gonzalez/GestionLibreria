@@ -54,8 +54,6 @@ typedef struct {
     bool generado;          /**< Indica si el pedido ha sido generado (true) o no (false). */
     int cantidadLibros;      /**< Cantidad de libros en el pedido. */
     int *cantidadPorLibro;   /**< Arreglo dinámico que almacena la cantidad de cada libro en el pedido. */
-    
-
 } Pedido;
 
 /***

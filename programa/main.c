@@ -19,9 +19,17 @@ int main() {
     } else {
         printf("Error al cargar la configuración.\n");
     }
+    inicializarArregloClientes();
+    mostrarClientes();
 
 
-    
+    registrarCliente("123456789", "Juan Perez", "88881234");
+    registrarCliente("987654321", "Maria Gomez", "87771234");
+
+    mostrarClientes();
+
+
+
 
     return 0;
 }
