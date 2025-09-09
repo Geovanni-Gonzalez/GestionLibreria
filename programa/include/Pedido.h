@@ -82,4 +82,9 @@ void mostrarDetallePedido(Pedido* pedido, Config cfg);
  */
 Pedido* obtenerPedidosPorCliente(char* cedulaCliente, Pedido* arregloPedidos, int cantidadPedidosActual, int* cantidadPedidosCliente);
 
+
+
+void imprimirPedidos(Pedido* arregloPedidos, int cantidadPedidosActual);
+
+
 #endif /* PEDIDO_H */
