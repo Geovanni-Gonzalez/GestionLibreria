@@ -1,74 +1,10 @@
-#include "../include/Libro.h"
+#include "Libro.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include "Utilidades.h"
 
 #define MAX_LINEA 256
-
-int stringAInt(const char* str) {
-    int resultado = 0;
-    int signo = 1;
-    int i = 0;
-
-    if (str[0] == '-') {
-        signo = -1;
-        i++;
-    }
-
-    while (str[i] >= '0' && str[i] <= '9') {
-        resultado = resultado * 10 + (str[i] - '0');
-        i++;
-    }
-
-    return signo * resultado;
-}
-
-
-// Funcion para copiar un string caracter por caracter
-char* copiarString(const char* src) {
-    int len = 0;
-    while (src[len] != '\0') len++;
-
-    char* dst = malloc(len + 1);
-    if (!dst) return NULL;
-
-    for (int i = 0; i <= len; i++) {  // <= para copiar '\0'
-        dst[i] = src[i];
-    }
-    return dst;
-}
-// Funcion para pasar un "String" a float
-float stringAFloat(const char* str) {
-    float resultado = 0.0f;
-    int signo = 1;
-    int i = 0;
-
-    // Manejar signo
-    if (str[0] == '-') {
-        signo = -1;
-        i++;
-    }
-
-    // Parte entera
-    while (str[i] >= '0' && str[i] <= '9') {
-        resultado = resultado * 10 + (str[i] - '0');
-        i++;
-    }
-
-    // Parte decimal
-    if (str[i] == '.') {
-        i++;
-        float decimal = 0.0f;
-        float divisor = 10.0f;
-        while (str[i] >= '0' && str[i] <= '9') {
-            decimal += (str[i] - '0') / divisor;
-            divisor *= 10;
-            i++;
-        }
-        resultado += decimal;
-    }
-
-    return signo * resultado;
-}
 
 
 Libro* cargarLibros(const char* rutaArchivo, int* totalLibros) {
@@ -190,7 +126,7 @@ void agregarLibro(Libro** libros, int* totalLibros, const char* titulo, const ch
         printf("No se pudo asignar memoria para el código.\n");
         return;
     }
-    generarCodigoUnico(*libros, *totalLibros, nuevoLibro->codigo);
+    generarCodigoUnicoLibro(*libros, *totalLibros, nuevoLibro->codigo);
 
     (*totalLibros)++;
     printf("Libro agregado exitosamente: %s - %s\n", nuevoLibro->titulo, nuevoLibro->autor);

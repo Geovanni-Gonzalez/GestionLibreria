@@ -4,8 +4,9 @@
  *
  * Este archivo contiene funciones para:
  * - Validación de datos de clientes
- * - Manejo de pedidos
+ * - Manejo de pedidos (generación de ID, cálculo de precios, stock)
  * - Manejo de clientes y carga desde archivo
+ * - Manejo de lectura de archivos
  */
 
 #ifndef UTILIDADES_H
@@ -17,17 +18,6 @@
 #include "Libro.h"
 #include "Config.h"
 
-/*******************************
- * Funciones de validación
- *******************************/
-
-/**
- * @file Utilidades.h
- * @brief Declaraciones de funciones utilitarias para validación de datos.
- *
- * Este archivo contiene las declaraciones de funciones para validar
- * cédulas únicas y números de teléfono.
- */ 
 
 /**
  * @brief Verifica si la cédula proporcionada es única entre los clientes registrados.
@@ -47,10 +37,6 @@ bool validarCedulaUnica(const char* cedula, Cliente* arregloClientes, int cantid
  */
 bool validarTelefono(const char* telefono);
 
-
-int generarCodigoUnicoLibro(Libro* libros, int totalLibros, char* nuevoCodigo);/*******************************
- * Funciones para pedidos
- *******************************/
 
 /**
  * @brief Genera un ID para un pedido basado en el total actual de pedidos.
@@ -76,9 +62,15 @@ void calcularPreciosPedido(Pedido *pedido);
  */
 void descontarStockLibro(Libro *libro, int *cantidadPorLibro, int cantidadLibros);
 
-/*******************************
- * Funciones para clientes
- *******************************/
+/**
+ * @brief Carga pedidos desde archivo en un arreglo dinámico.
+ * 
+ * @param arregloPedidos Puntero al arreglo dinámico de pedidos.
+ * @param cantidadPedidosActual Puntero al número actual de pedidos.
+ * @param capacidadDePedidosArreglo Puntero a la capacidad actual del arreglo.
+ */
+void cargarPedidosDesdeArchivo(Pedido** arregloPedidos, int* cantidadPedidosActual, int* capacidadDePedidosArreglo);
+
 
 /**
  * @brief Lee un archivo completo y retorna su contenido como cadena.
@@ -98,5 +90,20 @@ char* leerArchivo(const char* nombre);
  * @param capacidadDeClientesArreglo Puntero a la capacidad actual del arreglo.
  */
 void cargarClientesDesdeArchivo(Cliente** arregloClientes, int* cantidadClientesActual, int* capacidadDeClientesArreglo);
+
+
+/**
+ * @brief Genera un código único para un libro en base a los existentes.
+ * 
+ * @param libros Arreglo de libros actuales.
+ * @param totalLibros Número de libros existentes.
+ * @param nuevoCodigo Cadena donde se guardará el código generado.
+ * @return 1 si se generó correctamente, 0 en caso de error.
+ */
+int generarCodigoUnicoLibro(Libro* libros, int totalLibros, char* nuevoCodigo);
+
+int stringAInt(const char* str);
+char* copiarString(const char* src);
+float stringAFloat(const char* str);
 
 #endif /* UTILIDADES_H */

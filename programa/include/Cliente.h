@@ -111,5 +111,15 @@ void inicializarArregloClientes();
 void imprimirInformacionCliente(const Cliente *cliente);
 
 
+/**
+ * @brief Realiza una consulta de cliente por cédula e imprime la información del cliente y de cada pedido realizado por él.
+ *
+ * Busca el cliente con la cédula proporcionada y muestra su información junto con los detalles de sus pedidos.
+ *
+ * @param cedula Cadena de caracteres que representa la cédula del cliente a consultar.
+ */
+void consultaDeCliente(char* cedula);
+
+
 
 #endif
