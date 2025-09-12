@@ -123,3 +123,134 @@ Pedido* obtenerPedidosPorCliente(char* cedulaCliente, Pedido* arregloPedidos, in
 
     return pedidosCliente;
 }
+
+
+/**
+ * @brief Selecciona un libro ingresando su código y cantidad para agregar al pedido.
+ *
+ * - Si el libro ya existe en el pedido, se aumenta su cantidad.
+ * - Se valida que exista stock suficiente en data/libros.txt; si no, no se agrega y se informa
+ *   el stock existente.
+ * - Al seleccionar libros se muestra la lista de compra en consola (Código, nombre, precio).
+ */
+void seleccionarLibro(Pedido* pedido, const char* codigoLibro, int cantidad) {
+    if (!pedido || !codigoLibro || cantidad <= 0) {
+        printf("Datos inválidos para seleccionar libro.\n");
+        return;
+    }
+
+    // 1) Leer inventario desde data/libros.txt (formato: cod;titulo;autor;precio;cantidad)
+    FILE* f = fopen("data/libros.txt", "r");
+    if (!f) {
+        printf("No se pudo abrir el inventario de libros.\n");
+        return;
+    }
+
+    char linea[256];
+    char* codigo = NULL; float precio = 0.0f; int stock = -1; char* titulo = NULL;
+    int encontrado = 0;
+    while (fgets(linea, sizeof(linea), f)) {
+        // Eliminar salto de línea
+        int i = 0;
+        while (linea[i] != '\0') {
+            if (linea[i] == '\n' || linea[i] == '\r') {
+                linea[i] = '\0'; break;
+            }
+            i++;
+        }
+
+        // Separar en ';'
+        char* campos[5] = {0};
+        int idx = 0;
+        char* p = linea;
+        char* start = linea;
+        while (*p != '\0' && idx < 5) {
+            if (*p == ';') {
+                *p = '\0';
+                campos[idx++] = start;
+                start = p + 1;
+            }
+            p++;
+        }
+        campos[idx++] = start;
+        if (idx != 5) continue;
+
+        if (strcmp(campos[0], codigoLibro) == 0) {
+            codigo = campos[0];
+            titulo = campos[1];
+            precio = stringAFloat(campos[3]);
+            stock = stringAInt(campos[4]);
+            encontrado = 1;
+            break;
+        }
+    }
+    fclose(f);
+
+    if (!encontrado) {
+        printf("Código de libro no existe en el inventario.\n");
+        return;
+    }
+
+    // 2) Validar stock disponible vs cantidad solicitada + ya en el pedido
+    int yaEnPedido = 0;
+    for (int i = 0; i < pedido->cantidadLibros; i++) {
+        if (strcmp(pedido->libros[i].codigo, codigoLibro) == 0) {
+            yaEnPedido = pedido->cantidadPorLibro[i];
+            break;
+        }
+    }
+
+    if (cantidad + yaEnPedido > stock) {
+        printf("No hay stock suficiente. Disponible: %d\n", stock);
+        return;
+    }
+
+    // 3) Si ya existe en el pedido, aumentar cantidad. Si no, agregar nueva línea
+    for (int i = 0; i < pedido->cantidadLibros; i++) {
+        if (strcmp(pedido->libros[i].codigo, codigoLibro) == 0) {
+            pedido->cantidadPorLibro[i] += cantidad;
+            // Mostrar lista de compra
+            printf("\nLista de compra:\n");
+            for (int j = 0; j < pedido->cantidadLibros; j++) {
+                const char* tit = pedido->libros[j].titulo ? pedido->libros[j].titulo : "";
+                printf("%s - %s - %.2f (x%d)\n", pedido->libros[j].codigo, tit, pedido->libros[j].precio, pedido->cantidadPorLibro[j]);
+            }
+            return;
+        }
+    }
+
+    // Agregar nuevo libro al pedido
+    Libro* nuevosLibros = realloc(pedido->libros, sizeof(Libro) * (pedido->cantidadLibros + 1));
+    int* nuevasCantidades = realloc(pedido->cantidadPorLibro, sizeof(int) * (pedido->cantidadLibros + 1));
+    if (!nuevosLibros || !nuevasCantidades) {
+        printf("Error al asignar memoria para agregar libro al pedido.\n");
+        // Si uno falló pero el otro no, evitar fuga si corresponde
+        if (nuevosLibros) pedido->libros = nuevosLibros;
+        if (nuevasCantidades) pedido->cantidadPorLibro = nuevasCantidades;
+        return;
+    }
+    pedido->libros = nuevosLibros;
+    pedido->cantidadPorLibro = nuevasCantidades;
+
+    // Copiar datos del libro (codigo y titulo deben ser duplicados porque vienen de la línea temporal)
+    Libro* lib = &pedido->libros[pedido->cantidadLibros];
+    size_t lenCod = strlen(codigo);
+    lib->codigo = malloc(lenCod + 1);
+    if (lib->codigo) { strcpy(lib->codigo, codigo); }
+    size_t lenTit = strlen(titulo);
+    lib->titulo = malloc(lenTit + 1);
+    if (lib->titulo) { strcpy(lib->titulo, titulo); }
+    lib->autor = copiarString(""); // no requerido para la lista de compra, evitar NULL
+    lib->precio = precio;
+    lib->cantidad = stock; // cantidad en inventario referencial
+
+    pedido->cantidadPorLibro[pedido->cantidadLibros] = cantidad;
+    pedido->cantidadLibros++;
+
+    // 4) Mostrar lista de compra actual
+    printf("\nLista de compra:\n");
+    for (int j = 0; j < pedido->cantidadLibros; j++) {
+        const char* tit = pedido->libros[j].titulo ? pedido->libros[j].titulo : "";
+        printf("%s - %s - %.2f (x%d)\n", pedido->libros[j].codigo, tit, pedido->libros[j].precio, pedido->cantidadPorLibro[j]);
+    }
+}
