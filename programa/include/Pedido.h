@@ -102,4 +102,19 @@ void imprimirPedidos(Pedido* arregloPedidos, int cantidadPedidosActual);
 void seleccionarLibro(Pedido* pedido, const char* codigoLibro, int cantidad);
 
 
+/**
+ * @brief Modifica la cantidad de un libro en la lista del pedido.
+ *
+ * Permite aumentar (delta > 0) o disminuir (delta < 0) la cantidad de un libro ya
+ * presente en el pedido. Si se aumenta, se valida contra el stock del inventario.
+ * Si al disminuir la cantidad llega a 0, se elimina la línea del pedido.
+ * Siempre muestra la lista de compra luego del cambio.
+ *
+ * @param pedido Puntero al pedido.
+ * @param codigoLibro Código del libro a modificar.
+ * @param ajusteCantidad Cantidad a sumar o restar (puede ser negativa).
+ */
+void modificarLibro(Pedido* pedido, const char* codigoLibro, int ajusteCantidad);
+
+
 #endif /* PEDIDO_H */

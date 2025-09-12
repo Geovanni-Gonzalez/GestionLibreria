@@ -254,3 +254,115 @@ void seleccionarLibro(Pedido* pedido, const char* codigoLibro, int cantidad) {
         printf("%s - %s - %.2f (x%d)\n", pedido->libros[j].codigo, tit, pedido->libros[j].precio, pedido->cantidadPorLibro[j]);
     }
 }
+
+/**
+ * @brief Modifica la cantidad de un libro ya presente en el pedido.
+ *
+ * Si ajusteCantidad  > 0, intenta aumentar validando stock.
+ * Si ajusteCantidad  < 0, disminuye la cantidad y elimina la línea si queda en 0.
+ * Siempre imprime la lista de compra al final si se realizó algún cambio.
+ */
+void modificarLibro(Pedido* pedido, const char* codigoLibro, int ajusteCantidad ) {
+    if (!pedido || !codigoLibro || ajusteCantidad  == 0) {
+        printf("Parámetros inválidos para modificar libro.\n");
+        return;
+    }
+
+    // Buscar el libro en el pedido
+    int idx = -1;
+    for (int i = 0; i < pedido->cantidadLibros; i++) {
+        if (strcmp(pedido->libros[i].codigo, codigoLibro) == 0) {
+            idx = i; break;}
+    }
+
+    if (idx == -1) {
+        printf("El libro con código %s no existe en la lista de compra.\n", codigoLibro);
+        return;
+    }
+
+    if (ajusteCantidad  > 0) {
+        // Leer inventario para validar stock
+        FILE* f = fopen("data/libros.txt", "r");
+        if (!f) { printf("No se pudo abrir el inventario de libros.\n"); return; }
+        char linea[256];
+        int stock = -1;
+        while (fgets(linea, sizeof(linea), f)) {
+            int k = 0;
+            while (linea[k] != '\0') {
+                if (linea[k] == '\n' || linea[k] == '\r') {
+                    linea[k] = '\0';
+                    break;
+                } 
+                k++;
+            }
+            char* campos[5] = {0};
+            int n = 0;
+            char* p = linea;
+            char* start = linea;
+            while (*p != '\0' && n < 5) {
+                if (*p == ';') {
+                    *p = '\0';
+                    campos[n++] = start;
+                    start = p + 1;
+                }
+                p++;
+            }
+            campos[n++] = start;
+            if (n != 5) continue;
+            if (strcmp(campos[0], codigoLibro) == 0) {
+                stock = stringAInt(campos[4]);
+                break;
+            }
+        }
+        fclose(f);
+
+        if (stock < 0) {
+            printf("No se encontró el stock del libro.\n");
+            return;
+        }
+
+        int nuevaCantidad = pedido->cantidadPorLibro[idx] + ajusteCantidad ;
+        if (nuevaCantidad > stock) {
+            printf("No hay stock suficiente. Disponible: %d\n", stock);
+            return;
+        }
+        pedido->cantidadPorLibro[idx] = nuevaCantidad;
+        
+    } else { // ajusteCantidad  < 0
+        int nuevaCantidad = pedido->cantidadPorLibro[idx] + ajusteCantidad ; // delta es negativo
+        if (nuevaCantidad < 0) {
+            printf("No se puede dejar la cantidad negativa. Cantidad actual: %d\n", pedido->cantidadPorLibro[idx]);
+            return;
+        }
+
+        if (nuevaCantidad == 0) {
+            // Eliminar la línea: desplazar elementos y reducir arreglos
+            free(pedido->libros[idx].codigo);
+            free(pedido->libros[idx].titulo);  
+            free(pedido->libros[idx].autor);
+            for (int i = idx; i < pedido->cantidadLibros - 1; i++) {
+                pedido->libros[i] = pedido->libros[i + 1];
+                pedido->cantidadPorLibro[i] = pedido->cantidadPorLibro[i + 1];
+            }
+            pedido->cantidadLibros--;
+            if (pedido->cantidadLibros > 0) {
+                Libro* nuevosLibros = realloc(pedido->libros, sizeof(Libro) * pedido->cantidadLibros);
+                int* nuevasCant = realloc(pedido->cantidadPorLibro, sizeof(int) * pedido->cantidadLibros);
+                if (nuevosLibros) pedido->libros = nuevosLibros;
+                if (nuevasCant) pedido->cantidadPorLibro = nuevasCant;
+            } else {
+                free(pedido->libros); pedido->libros = NULL;
+                free(pedido->cantidadPorLibro); pedido->cantidadPorLibro = NULL;
+            }
+        } else {
+            pedido->cantidadPorLibro[idx] = nuevaCantidad;
+        }
+    }
+
+    // Imprimir lista de compra actualizada
+    printf("\nLista de compra:\n");
+    for (int j = 0; j < pedido->cantidadLibros; j++) {
+        const char* tit = pedido->libros[j].titulo ? pedido->libros[j].titulo : "";
+        printf("%s - %s - %.2f (x%d)\n", pedido->libros[j].codigo, tit, pedido->libros[j].precio, pedido->cantidadPorLibro[j]);
+    }
+}
