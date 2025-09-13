@@ -220,7 +220,18 @@ void consultaCatalogo(const char* rutaArchivo, const char* autorFiltro) {
 }
 
 void mostrarLibros(Libro* libros, int totalLibros) {
-    // implementacion pendiente
+    if (!libros || totalLibros == 0) {
+        printf("No hay libros en stock.\n");
+        return;
+    }
+
+    printf("Los libros en stock son:\n");
+    for (int i = 0; i < totalLibros; i++) {
+        printf("(%s, %s, %.2f)\n",
+               libros[i].codigo,
+               libros[i].titulo,
+               libros[i].precio);
+    }
 }
 
 void mostrarLibrosCatalogo(Libro* libros, int totalLibros) {
@@ -277,4 +288,5 @@ void filtrarPorAutor(Libro* libros, int totalLibros, const char* autor) {
 void eliminarLibro(Libro** libros, int* totalLibros, const char* codigo) {
     // implementacion pendiente
 }
+
 
