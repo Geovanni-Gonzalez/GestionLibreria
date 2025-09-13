@@ -121,4 +121,16 @@ void filtrarPorAutor(Libro* libros, int totalLibros, const char* autor);
  */
 void eliminarLibro(Libro** libros, int* totalLibros, const char* codigo);
 
+/**
+ * @brief Consulta y muestra el catálogo de libros.
+ *
+ * Muestra: código, título, autor, precio sin impuestos y cantidad en stock.
+ * Si autorFiltro es NULL o cadena vacía, se muestran todos los libros.
+ * Si autorFiltro tiene valor, se muestran solo los libros de ese autor.
+ *
+ * @param rutaArchivo Ruta del archivo de libros (por ejemplo: "data/libros.txt").
+ * @param autorFiltro Autor a filtrar (opcional). Usar NULL o "" para no filtrar.
+ */
+void consultaCatalogo(const char* rutaArchivo, const char* autorFiltro);
+
 #endif /* LIBRO_H */
