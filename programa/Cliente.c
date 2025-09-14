@@ -122,3 +122,148 @@ void consultaDeCliente(char* cedula) {
         free(pedidosCliente); 
     }
 }
+
+bool eliminarCliente(const char* cedula) {
+    if (cedula == NULL || cedula[0] == '\0') {
+        printf("Cédula inválida.\n");
+        return false;
+    }
+
+    // Buscar índice del cliente en el arreglo
+    int indiceCliente = -1;
+    for (int indiceBusqueda = 0; indiceBusqueda < cantidadClientesActual; indiceBusqueda++) {
+        if (strcmp(arregloClientes[indiceBusqueda].cedula, cedula) == 0) {
+            indiceCliente = indiceBusqueda;
+            break;
+        }
+    }
+
+    if (indiceCliente == -1) {
+        printf("Cliente no encontrado.\n");
+        return false;
+    }
+
+    // Validar que no tenga pedidos asociados
+    extern Pedido* arregloPedidos;        // Definidos en Pedido.c
+    extern int cantidadPedidosActual;     // Definidos en Pedido.c
+
+    int cantidadPedidosAsociados = 0;
+    Pedido* pedidosCliente = obtenerPedidosPorCliente((char*)cedula, arregloPedidos, cantidadPedidosActual, &cantidadPedidosAsociados);
+    if (cantidadPedidosAsociados > 0) {
+        printf("No se puede eliminar el cliente: tiene pedidos asociados (%d).\n", cantidadPedidosAsociados);
+        if (pedidosCliente != NULL) {
+            free(pedidosCliente);
+        }
+        return false;
+    }
+    if (pedidosCliente != NULL) {
+        free(pedidosCliente);
+    }
+
+    // Eliminar del arreglo dinámico (desplazar elementos)
+    for (int indiceDesplazamiento = indiceCliente; indiceDesplazamiento < cantidadClientesActual - 1; indiceDesplazamiento++) {
+        arregloClientes[indiceDesplazamiento] = arregloClientes[indiceDesplazamiento + 1];
+    }
+    cantidadClientesActual--;
+
+    /*
+     * - Tras eliminar un cliente, si el uso del arreglo es la mitad o menos
+     *   de su capacidad actual, intentamos reducir la capacidad a la mitad
+     *   para evitar memoria que no esta haciendo nada.
+     * - Nunca reducimos por debajo de 2 elementos para mantener un mínimo razonable.
+     * - Usamos realloc y solo actualizamos el puntero y la capacidad si la
+     *   reasignación se realiza con éxito, evitando perder la referencia en caso que de error.
+     */
+    if (cantidadClientesActual > 0 && cantidadClientesActual <= (capacidadDeClientesArreglo / 2)) {
+        int nuevaCapacidadClientes = capacidadDeClientesArreglo / 2;
+        if (nuevaCapacidadClientes < 2) {
+            nuevaCapacidadClientes = 2;
+        }
+        Cliente* arregloClientesRedimensionado = (Cliente*)realloc(arregloClientes, nuevaCapacidadClientes * sizeof(Cliente));
+        if (arregloClientesRedimensionado != NULL) {
+            arregloClientes = arregloClientesRedimensionado;
+            capacidadDeClientesArreglo = nuevaCapacidadClientes;
+        }
+    }
+
+    // Actualizar archivo: reescribir data/clientes.txt sin el cliente eliminado
+    const char* rutaArchivoClientes = "data/clientes.txt";
+    const char* rutaArchivoTemporal = "data/clientes.tmp";
+
+    FILE* archivoOriginal = fopen(rutaArchivoClientes, "r");
+    if (archivoOriginal == NULL) {
+        printf("Advertencia: no se pudo abrir el archivo de clientes para lectura. Solo se eliminó en memoria.\n");
+        printf("Cliente eliminado correctamente en memoria.\n");
+        return true;
+    }
+
+    FILE* archivoTemporal = fopen(rutaArchivoTemporal, "w");
+    if (archivoTemporal == NULL) {
+        fclose(archivoOriginal);
+        printf("Advertencia: no se pudo crear el archivo temporal. Solo se eliminó en memoria.\n");
+        printf("Cliente eliminado correctamente en memoria.\n");
+        return true;
+    }
+
+    char lineaLeida[256];
+    while (fgets(lineaLeida, sizeof(lineaLeida), archivoOriginal)) {
+        // Copiar para no modificar la línea original al separar
+        char copiaLinea[256];
+        strncpy(copiaLinea, lineaLeida, sizeof(copiaLinea) - 1);
+        copiaLinea[sizeof(copiaLinea) - 1] = '\0';
+
+        // Separar por ';' para extraer la cédula
+        char* campos[3] = {0};
+        int cantidadCampos = 0;
+        char* punteroRecorrido = copiaLinea;
+        char* inicioCampo = copiaLinea;
+
+        while (*punteroRecorrido != '\0' && cantidadCampos < 3) {
+            if (*punteroRecorrido == ';') {
+                *punteroRecorrido = '\0';
+                campos[cantidadCampos++] = inicioCampo;
+                inicioCampo = punteroRecorrido + 1;
+            }
+            punteroRecorrido++;
+        }
+        campos[cantidadCampos++] = inicioCampo;
+
+        const char* cedulaEnArchivo = (cantidadCampos >= 1 && campos[0]) ? campos[0] : NULL;
+
+        // Normalizar fin de línea en cedulaEnArchivo
+        if (cedulaEnArchivo != NULL) {
+            size_t longitudCedulaArchivo = strlen(cedulaEnArchivo);
+            if (longitudCedulaArchivo > 0 && (cedulaEnArchivo[longitudCedulaArchivo - 1] == '\n' || cedulaEnArchivo[longitudCedulaArchivo - 1] == '\r')) {
+                // No se requiere modificar porque comparamos contra 'cedula' sin EOL;
+                // la línea original 'lineaLeida' mantiene los EOL para reescribir tal cual.
+            }
+        }
+
+        // Si la cédula coincide, no escribir la línea (se elimina)
+        if (cedulaEnArchivo != NULL && strcmp(cedulaEnArchivo, cedula) == 0) {
+            continue;
+        }
+
+        fputs(lineaLeida, archivoTemporal);
+    }
+
+    fclose(archivoOriginal);
+    fclose(archivoTemporal);
+
+    // Reemplazar archivo original por el temporal
+    if (remove(rutaArchivoClientes) != 0) {
+        printf("Advertencia: no se pudo eliminar el archivo original de clientes.\n");
+        // Intentar limpiar el temporal para evitar basura
+        remove(rutaArchivoTemporal);
+        printf("Cliente eliminado en memoria, pero no en archivo.\n");
+        return true;
+    }
+    if (rename(rutaArchivoTemporal, rutaArchivoClientes) != 0) {
+        printf("Advertencia: no se pudo renombrar el archivo temporal de clientes.\n");
+        printf("Cliente eliminado en memoria, pero no en archivo.\n");
+        return true;
+    }
+
+    printf("Cliente eliminado correctamente.\n");
+    return true;
+}
