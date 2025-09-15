@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdio.h>
 
-
+// Declaración de variables globales accesibles externamente
 Pedido* arregloPedidos = NULL;     // Arreglo dinámico
 int cantidadPedidosActual = 0;      // Cantidad actual de pedidos
 int capacidadDePedidosArreglo = 2;  // Tamaño inicial del arreglo
@@ -366,3 +366,65 @@ void modificarLibro(Pedido* pedido, const char* codigoLibro, int ajusteCantidad 
         printf("%s - %s - %.2f (x%d)\n", pedido->libros[j].codigo, tit, pedido->libros[j].precio, pedido->cantidadPorLibro[j]);
     }
 }
+
+
+
+// Retornar direccion de variable cantidadPedidosActual
+int* cantidadPedidos() {
+    return &cantidadPedidosActual;
+}
+
+// Formato fecha DD/MM/AAAA
+int obtenerAnioDeFecha(const char* fecha) {
+    if (fecha == NULL || strlen(fecha) < 10) return -1;
+    char anio[5] = {0};
+    strncpy(anio, fecha + 6, 4);
+    return atoi(anio);
+}
+
+
+int obtenerMontoPorAnio(int anio, Pedido* arregloPedidos, int cantidadPedidos) {
+    int montoTotal = 0;
+
+    for (int i = 0; i < cantidadPedidos; i++) {
+        if (obtenerAnioDeFecha(arregloPedidos[i].fecha) == anio) {
+            montoTotal += arregloPedidos[i].total;
+        }
+    }
+
+    return montoTotal;
+}
+
+
+//Funcion que retorna un array de los anios que existen en los pedidos
+int* obtenerAniosPedidos(Pedido* arregloPedidos, int cantidadPedidos) {
+    int* anios = NULL;
+    int* cantidadAnios = malloc(sizeof(int));
+    *cantidadAnios = 0;
+
+    for (int i = 0; i < cantidadPedidos; i++) {
+        int anio = obtenerAnioDeFecha(arregloPedidos[i].fecha);
+        bool existe = false;
+        for (int j = 0; j < *cantidadAnios; j++) {
+            if (anios[j] == anio) {
+                existe = true;
+                break;
+            }
+        }
+        if (!existe) {
+            anios = realloc(anios, sizeof(int) * (*cantidadAnios + 1));
+            if (!anios) {
+                printf("Error al asignar memoria para los años.\n");
+                *cantidadAnios = 0;
+                return NULL;
+            }
+            anios[*cantidadAnios] = anio;
+            (*cantidadAnios)++;
+        }
+    }
+
+    return anios;
+}
+
+
+

@@ -57,6 +57,11 @@ typedef struct {
 } Pedido;
 
 
+extern Pedido* arregloPedidos;     // Arreglo dinámico
+extern int cantidadPedidosActual;      // Cantidad actual de pedidos
+extern int capacidadDePedidosArreglo;  // Tamaño inicial del arreglo
+
+
 void inicializarArregloPedidos();
 
 /***
@@ -115,6 +120,25 @@ void seleccionarLibro(Pedido* pedido, const char* codigoLibro, int cantidad);
  * @param ajusteCantidad Cantidad a sumar o restar (puede ser negativa).
  */
 void modificarLibro(Pedido* pedido, const char* codigoLibro, int ajusteCantidad);
+
+
+int* cantidadPedidos();
+
+int obtenerAnioDeFecha(const char* fecha);
+
+int obtenerMesDeFecha(const char* fecha);
+
+int obtenerMontoPorAnio(int anio, Pedido* arregloPedidos, int cantidadPedidos);
+
+int* obtenerAniosPedidos(Pedido* arregloPedidos, int cantidadPedidos);
+
+
+
+
+
+
+
+
 
 
 #endif /* PEDIDO_H */
