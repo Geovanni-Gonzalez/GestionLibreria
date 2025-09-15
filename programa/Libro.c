@@ -171,6 +171,54 @@ void cargarInventario(Libro** libros, int* totalLibros, const char* rutaArchivo)
     fclose(archivo);
 }
 
+
+void consultaCatalogo(const char* rutaArchivo, const char* autorFiltro) {
+    int totalLibros = 0;
+    Libro* libros = cargarLibros(rutaArchivo, &totalLibros);
+    if (!libros || totalLibros == 0) {
+        printf("No hay libros disponibles en el catálogo.\n");
+        if (libros) liberarLibros(libros, totalLibros);
+        return;
+    }
+
+    int mostrarTodos = 1;
+    if (autorFiltro && autorFiltro[0] != '\0') {
+        mostrarTodos = 0;
+    }
+
+    printf("\n=== CATÁLOGO DE LIBROS ===\n");
+    if (!mostrarTodos) {
+        printf("Filtro por autor: %s\n", autorFiltro);
+    }
+    printf("Codigo | Titulo | Autor | Precio (sin impuestos) | Stock\n");
+
+    int encontrados = 0;
+    for (int i = 0; i < totalLibros; i++) {
+        if (!mostrarTodos && strcmp(libros[i].autor, autorFiltro) != 0) {
+            continue;
+        }
+        printf("%s | %s | %s | %.2f | %d\n",
+               libros[i].codigo ? libros[i].codigo : "",
+               libros[i].titulo ? libros[i].titulo : "",
+               libros[i].autor ? libros[i].autor : "",
+               libros[i].precio,
+               libros[i].cantidad);
+        encontrados++;
+    }
+
+    if (encontrados == 0) {
+        if (mostrarTodos) {
+            printf("No hay libros para mostrar.\n");
+        } else {
+            printf("No se encontraron libros para el autor especificado.\n");
+        }
+    } else {
+        printf("Total mostrados: %d\n", encontrados);
+    }
+
+    liberarLibros(libros, totalLibros);
+}
+
 void mostrarLibros(Libro* libros, int totalLibros) {
     // implementacion pendiente
 }

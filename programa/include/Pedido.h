@@ -92,6 +92,36 @@ Pedido* obtenerPedidosPorCliente(char* cedulaCliente, Pedido* arregloPedidos, in
 void imprimirPedidos(Pedido* arregloPedidos, int cantidadPedidosActual);
 
 
+/**
+ * @brief Selecciona un libro por código y cantidad para agregarlo a un pedido.
+ *
+ * Si el libro ya se encuentra en el pedido, se incrementa su cantidad.
+ * Se valida el stock contra el inventario (data/libros.txt); si no hay suficiente,
+ * no se agrega y se informa al usuario el stock disponible.
+ * Al finalizar, se muestra en consola la lista de compra (código, nombre y precio).
+ *
+ * @param pedido Puntero al pedido donde se agregará el libro.
+ * @param codigoLibro Código del libro a agregar.
+ * @param cantidad Cantidad solicitada del libro.
+ */
+void seleccionarLibro(Pedido* pedido, const char* codigoLibro, int cantidad);
+
+
+/**
+ * @brief Modifica la cantidad de un libro en la lista del pedido.
+ *
+ * Permite aumentar (delta > 0) o disminuir (delta < 0) la cantidad de un libro ya
+ * presente en el pedido. Si se aumenta, se valida contra el stock del inventario.
+ * Si al disminuir la cantidad llega a 0, se elimina la línea del pedido.
+ * Siempre muestra la lista de compra luego del cambio.
+ *
+ * @param pedido Puntero al pedido.
+ * @param codigoLibro Código del libro a modificar.
+ * @param ajusteCantidad Cantidad a sumar o restar (puede ser negativa).
+ */
+void modificarLibro(Pedido* pedido, const char* codigoLibro, int ajusteCantidad);
+
+
 int* cantidadPedidos();
 
 int obtenerAnioDeFecha(const char* fecha);

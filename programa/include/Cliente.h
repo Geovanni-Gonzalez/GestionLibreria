@@ -121,5 +121,15 @@ void imprimirInformacionCliente(const Cliente *cliente);
 void consultaDeCliente(char* cedula);
 
 
+/**
+ * @brief Elimina un cliente del sistema si no tiene pedidos asociados.
+ *
+ * Valida que el cliente exista y que no esté asociado a ningún pedido.
+ * Actualiza el arreglo dinámico en memoria y el archivo data/clientes.txt.
+ *
+ * @param cedula Cédula del cliente a eliminar.
+ * @return true si se eliminó exitosamente, false en caso de error o si tiene pedidos.
+ */
+bool eliminarCliente(const char* cedula);
 
 #endif
