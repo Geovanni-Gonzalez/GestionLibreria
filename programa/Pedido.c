@@ -123,3 +123,17 @@ Pedido* obtenerPedidosPorCliente(char* cedulaCliente, Pedido* arregloPedidos, in
 
     return pedidosCliente;
 }
+
+
+// Retornar direccion de variable cantidadPedidosActual
+int* cantidadPedidos() {
+    return &cantidadPedidosActual;
+}
+//Formato fechha DD
+// Formato fecha DD/MM/AAAA
+char obtenerAnioDeFecha(const char* fecha) {
+    if (fecha == NULL || strlen(fecha) < 10) return -1;
+    char anio[5] = {0};
+    strncpy(anio, fecha + 6, 4);
+    return atoi(anio);
+}

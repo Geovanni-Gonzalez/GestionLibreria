@@ -1,4 +1,10 @@
 #include "Estadistica.h"
+#include "Pedido.h"
+
+void inicializarEstadistica(Estadistica* estadistica) {
+    estadistica->totalPedidos = *cantidadPedidos();
+    
+}
 
 void mostrarTotalPedidos(Estadistica* estadistica) {
     printf("Total de Pedidos: %d\n", estadistica->totalPedidos);

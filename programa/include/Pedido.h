@@ -87,4 +87,11 @@ Pedido* obtenerPedidosPorCliente(char* cedulaCliente, Pedido* arregloPedidos, in
 void imprimirPedidos(Pedido* arregloPedidos, int cantidadPedidosActual);
 
 
+int* cantidadPedidos();
+
+char obtenerAnioDeFecha(const char* fecha);
+
+
+
+
 #endif /* PEDIDO_H */
