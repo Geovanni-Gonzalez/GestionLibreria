@@ -356,3 +356,100 @@ float stringAFloat(const char* str) {
 
     return signo * resultado;
 }
+
+//Funcion estandar para obtener solo la cadena de caracteres 
+void trim(char *s) {
+    if (!s) return;
+    char *start = s;
+    while (*start && isspace((unsigned char)*start)) start++;
+    char *end = start + strlen(start);
+    while (end > start && isspace((unsigned char)*(end - 1))) end--;
+    size_t len = (size_t)(end - start);
+    memmove(s, start, len);
+    s[len] = '\0';
+}
+
+//Funcion para leer punteros sin espacios (funcion trim en su version puntero)
+char* leerLineaAlloc(const char* prompt, size_t maxLen) {
+    char *buf = (char*)malloc(maxLen);
+    if (!buf) return NULL;
+    printf("%s", prompt);
+    if (!fgets(buf, maxLen, stdin)) { free(buf); return NULL; }
+    trim(buf);
+    return buf;
+}
+
+static void trim_inplace(char* s) {
+    if (!s) return;
+    char *p = s, *q = s + strlen(s);
+    while (*p && isspace((unsigned char)*p)) p++;
+    while (q > p && isspace((unsigned char)q[-1])) q--;
+    size_t n = (size_t)(q - p);
+    memmove(s, p, n);
+    s[n] = '\0';
+}
+
+static char* dupstr_local(const char* s) {
+    if (!s) return NULL;
+    size_t n = strlen(s);
+    char* d = (char*)malloc(n + 1);
+    if (d) memcpy(d, s, n + 1);
+    return d;
+}
+
+// Se asegura de que no arrastre datos ni saltos de linea extra 
+void leerLineaSeguro(char *dst, size_t dstSize) {
+    if (!fgets(dst, dstSize, stdin)) {
+        clearerr(stdin);
+        dst[0] = '\0';
+        return;
+    }
+    // Quita \r\n si vinieron
+    size_t n = strcspn(dst, "\r\n");
+    if (dst[n] != '\0') {
+        dst[n] = '\0';
+    } else {
+        // No habia \n en el buffer => la linea fue mas larga que dstSize-1.
+        // Consumimos el resto hasta el \n para no contaminar la siguiente lectura.
+        int ch;
+        while ((ch = getchar()) != '\n' && ch != EOF) { /* descartar */ }
+    }
+}
+
+void limpiar_stdin(void) {
+    int c;
+    // consume todo hasta el próximo '\n' o carcatrer EOF
+    while ((c = getchar()) != '\n' && c != EOF) { /* nada */ }
+}
+
+bool validarCedula9(const char* s) {
+    if (!s) return false;
+    for (int i = 0; i < 9; i++) if (!isdigit((unsigned char)s[i])) return false;
+    return s[9] == '\0'; // exactamente 9
+}
+
+bool validarFechaYYYYMMDD(const char* s) {
+    if (!s) return false;
+    for (int i = 0; i < 8; i++) if (!isdigit((unsigned char)s[i])) return false;
+    return s[8] == '\0';
+}
+
+void aplicarPedidoAlInventario(Libro* inventario, int totalLibros, const Pedido* pedido) {
+    if (!inventario || totalLibros <= 0 || !pedido || pedido->cantidadLibros <= 0) return;
+
+    for (int i = 0; i < pedido->cantidadLibros; i++) {
+        const char* cod = pedido->libros[i].codigo;
+        int restar = pedido->cantidadPorLibro[i];
+
+        for (int j = 0; j < totalLibros; j++) {
+            if (inventario[j].codigo && strcmp(inventario[j].codigo, cod) == 0) {
+                if (restar <= 0) break;
+                if (inventario[j].cantidad >= restar) inventario[j].cantidad -= restar;
+                else inventario[j].cantidad = 0; 
+                break;
+            }
+        }
+    }
+}
+
+void limpiarFinLinea(char *s) { if (s) s[strcspn(s, "\r\n")] = '\0'; }

@@ -227,10 +227,78 @@ void mostrarLibrosCatalogo(Libro* libros, int totalLibros) {
     // implementacion pendiente
 }
 
-void filtrarPorAutor(Libro* libros, int totalLibros, const char* autor) {
-    // implementacion pendiente
+void filtrarPorAutor(Libro* libros, int totalLibros) {
+    if (!libros || totalLibros == 0) {
+        printf("No hay libros cargados.\n");
+        return;
+    }
+
+    char buffer[100];
+    printf("Ingrese el nombre del autor a buscar: ");
+    if (!fgets(buffer, sizeof(buffer), stdin)) {
+        printf("Error al leer el autor.\n");
+        return;
+    }
+
+    size_t len = strlen(buffer);
+    if (len > 0 && (buffer[len - 1] == '\n' || buffer[len - 1] == '\r')) {
+        buffer[len - 1] = '\0';
+    }
+
+    // Reservar memoria dinamica para el autor buscado
+    char* autor = malloc(strlen(buffer) + 1);
+    if (!autor) {
+        printf("Error al reservar memoria.\n");
+        return;
+    }
+    strcpy(autor, buffer);
+
+    int encontrados = 0;
+    printf("\nLibros del autor '%s':\n", autor);
+
+    for (int i = 0; i < totalLibros; i++) {
+        if (strcmp(libros[i].autor, autor) == 0) {
+            printf("(%s, %s, %.2f)\n",
+                   libros[i].codigo,
+                   libros[i].titulo,
+                   libros[i].precio);
+            encontrados++;
+        }
+    }
+
+    if (encontrados == 0) {
+        printf("No se encontraron libros de ese autor.\n");
+    }
+
+    // Liberar memoria usada para el autor
+    free(autor);
 }
+
 
 void eliminarLibro(Libro** libros, int* totalLibros, const char* codigo) {
     // implementacion pendiente
+}
+// prototipo de asociasion de pedido con libro 
+static int estaAsociadoAPedido(const char* codigo) {
+    (void)codigo;
+    return 0; 
+}
+
+void guardarLibros(const char* rutaArchivo, Libro* libros, int totalLibros) {
+    FILE* f = fopen(rutaArchivo, "w");
+    if (!f) {
+        perror("No se pudo abrir el archivo para guardar");
+        return;
+    }
+
+    for (int i = 0; i < totalLibros; i++) {
+        fprintf(f, "%s;%s;%s;%.2f;%d\n",
+                libros[i].codigo,
+                libros[i].titulo,
+                libros[i].autor,
+                libros[i].precio,
+                libros[i].cantidad);
+    }
+
+    fclose(f);
 }

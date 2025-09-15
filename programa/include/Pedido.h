@@ -16,7 +16,7 @@
  * @def MAX_ID
  * @brief Tamaño máximo para el identificador del pedido (incluye el carácter nulo).
  */
-#define MAX_ID  5
+#define MAX_ID  12
 
 /**
  * @def MAX_CEDULA
@@ -43,7 +43,7 @@
  * Contiene la información del pedido, incluyendo identificador, cliente asociado, fecha
  * y montos de subtotal, impuesto y total.
  */
-typedef struct {
+typedef struct Pedido{
     char id[MAX_ID];           /**< Identificador único del pedido (cadena terminada en '\0'). */
     char cedula[MAX_CEDULA];   /**< Cédula del cliente (cadena terminada en '\0'). */
     char fecha[MAX_FECHA];     /**< Fecha en la que se realizó el pedido (cadena terminada en '\0'). */
@@ -73,7 +73,6 @@ void inicializarArregloPedidos();
 void removerLibroDeListaPedido(char* codigoLibro, Pedido* pedido);
 
 
-void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9], Pedido* arregloPedidos, int* cantidadPedidosActual, Config cfg);
 
 void mostrarDetallePedido(Pedido* pedido, Config cfg);
 
@@ -85,11 +84,11 @@ void mostrarDetallePedido(Pedido* pedido, Config cfg);
  * @param cantidadPedidosCliente Puntero a entero donde se almacenará la cantidad de pedidos del cliente.
  * @return Arreglo dinámico de pedidos realizados por el cliente (debe liberarse con free), o NULL si no tiene pedidos.
  */
-Pedido* obtenerPedidosPorCliente(char* cedulaCliente, Pedido* arregloPedidos, int cantidadPedidosActual, int* cantidadPedidosCliente);
+//Pedido* obtenerPedidosPorCliente(char* cedulaCliente, Pedido* arregloPedidos, int cantidadPedidosActual, int* cantidadPedidosCliente);
 
 
 
-void imprimirPedidos(Pedido* arregloPedidos, int cantidadPedidosActual);
+//void imprimirPedidos(Pedido* arregloPedidos, int cantidadPedidosActual);
 
 
 /**
@@ -120,6 +119,19 @@ void seleccionarLibro(Pedido* pedido, const char* codigoLibro, int cantidad);
  * @param ajusteCantidad Cantidad a sumar o restar (puede ser negativa).
  */
 void modificarLibro(Pedido* pedido, const char* codigoLibro, int ajusteCantidad);
+
+
+void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9], Pedido* arregloPedidos, int* cantidadPedidosActual, Config* cfg);
+
+void mostrarDetallePedido(Pedido* pedido, Config cfg);
+
+void menuPedidoTrasSeleccion(Libro** inventario, int* totalLibros, int idxSel,
+                             Pedido* pedido, Config cfg,
+                             Pedido* arregloPedidos, int* cantidadPedidosActual);
+
+int guardarPedidoTxt(const Pedido* pedido, const char* rutaArchivo);
+
+void limpiarPedido(Pedido* p);
 
 
 int* cantidadPedidos();
