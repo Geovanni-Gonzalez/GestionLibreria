@@ -57,6 +57,11 @@ typedef struct {
 } Pedido;
 
 
+extern Pedido* arregloPedidos;     // Arreglo dinámico
+extern int cantidadPedidosActual;      // Cantidad actual de pedidos
+extern int capacidadDePedidosArreglo;  // Tamaño inicial del arreglo
+
+
 void inicializarArregloPedidos();
 
 /***
@@ -89,7 +94,19 @@ void imprimirPedidos(Pedido* arregloPedidos, int cantidadPedidosActual);
 
 int* cantidadPedidos();
 
-char obtenerAnioDeFecha(const char* fecha);
+int obtenerAnioDeFecha(const char* fecha);
+
+int obtenerMesDeFecha(const char* fecha);
+
+int obtenerMontoPorAnio(int anio, Pedido* arregloPedidos, int cantidadPedidos);
+
+int* obtenerAniosPedidos(Pedido* arregloPedidos, int cantidadPedidos);
+
+
+
+
+
+
 
 
 

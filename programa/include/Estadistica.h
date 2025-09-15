@@ -5,9 +5,9 @@
 typedef struct {
     int totalPedidos;
     float montoTotalDeVentas;
-    int *pedidosPorAnio; 
-    int *cantidadPedidosPorCliente;
-    int *cantidadVendidaLibro;
+    int *pedidosPorAnio; // Array dinámico para almacenar la cantidad de pedidos por año    EJEMPLO: pedidosPorAnio[0] = cantidad de pedidos en 2020 
+    int *cantidadPedidosPorCliente; // Array dinámico para almacenar la cantidad de pedidos por cliente
+    int *cantidadVendidaLibro; // Array dinámico para almacenar la cantidad vendida por libro
     int cantidadLibros;
 } Estadistica;
 
@@ -20,12 +20,15 @@ typedef struct {
  * cantidad de pedidos por cliente y cantidad vendida por libro.
  */
 
-void inicializarEstadistica(Estadistica* estadistica);
+void inicializarEstadistica(Estadistica* estadistica, Pedido* arregloPedidos, int cantidadPedidos);
+
 
 
 
 void mostrarTotalPedidos(Estadistica* estadistica);
 void mostrarMontoPorAnios(Estadistica* estadistica);
+
+float calcularMontoTotalDeVentas(Estadistica* estadistica);
 
 
 #endif 
