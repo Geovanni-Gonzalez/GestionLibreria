@@ -20,7 +20,7 @@ typedef struct {
  * cantidad de pedidos por cliente y cantidad vendida por libro.
  */
 
-void inicializarEstadistica(Estadistica* estadistica, Pedido* arregloPedidos, int cantidadPedidos);
+void inicializarEstadistica(Estadistica* estadistica);
 
 
 

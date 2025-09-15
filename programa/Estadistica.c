@@ -1,11 +1,13 @@
 #include "Estadistica.h"
 #include "Pedido.h"
+#include <stdlib.h>
+#include <stdio.h>
 
-void inicializarEstadistica(Estadistica* estadistica, Pedido* arregloPedidos, int cantidadPedidos) {
+void inicializarEstadistica(Estadistica* estadistica) {
     //1. Asigna la cantidad de pedidos totales con una función que retorne la dirección de la variable cantidadPedidosActual en Pedido.c
     estadistica->totalPedidos = *cantidadPedidos(); 
     //2. Asigna el monto total de ventas con una función que calcule el monto total de ventas en base al arreglo de pedidos.
-    estadistica->montoTotalDeVentas = calcularMontoTotalDeVentas(arregloPedidos, cantidadPedidos, estadistica);
+    estadistica->montoTotalDeVentas = calcularMontoTotalDeVentas(estadistica);
     //3. Inicializa el arreglo pedidosPorAnio con memoria dinámica
 
     //4. Inicializa el arreglo cantidadPedidosPorCliente con memoria dinámica
@@ -21,15 +23,9 @@ void mostrarTotalPedidos(Estadistica* estadistica) {
     printf("Total de Pedidos: %d\n", estadistica->totalPedidos);
 }
 
-void mostrarMontoPorAnios(Estadistica* estadistica, int anioInicio, int anioFin) {
-    printf("Pedidos por Año:\n");
-    for (int i = 0; i <= (anioFin - anioInicio); i++) {
-        printf("Año %d: %d pedidos\n", anioInicio + i, estadistica->pedidosPorAnio[i]);
-    }
-}
 
 
-float calcularMontoTotalDeVentas(Pedido* arregloPedidos, int cantidadPedidos, Estadistica* estadistica) {
+float calcularMontoTotalDeVentas(Estadistica* estadistica) {
     float montoTotal = 0.0f;
     for (int i = 0; i < cantidadPedidos; i++) {
         montoTotal += arregloPedidos[i].total;
