@@ -13,14 +13,14 @@
 int main(void) {
     // 1) Cargar config
     Config cfg = (Config){0};
-    if (!cargarConfig("admin.json", &cfg)) {
+    if (!cargarConfig("data/admin.json", &cfg)) {
         printf("No se pudo cargar config.\n");
         return 1;
     }
 
     // 2) Cargar inventario
     int totalLibros = 0;
-    Libro* inventario = cargarLibros("libros.txt", &totalLibros);
+    Libro* inventario = cargarLibros("data/libros.txt", &totalLibros);
     if (!inventario || totalLibros <= 0) {
         printf("No hay inventario.\n");
         return 1;

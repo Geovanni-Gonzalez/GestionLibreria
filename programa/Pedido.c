@@ -757,15 +757,15 @@ void menuPedidoTrasSeleccion(
             generarPedido(pedido, ced, fec, arregloPedidos, cantidadPedidosActual, &cfg);
 
             /* Guardar pedido */
-            guardarPedidoTxt(pedido, "../data/pedidos.txt");
+            guardarPedidoTxt(pedido, "data/pedidos.txt");
 
             /* Incrementar correlativo y persistir admin.json */
             actualizarNumeroSiguientePedido(&cfg);
-            guardarConfig("../data/admin.json", &cfg);
+            guardarConfig("data/admin.json", &cfg);
 
             /* Aplicar al inventario y persistir */
             aplicarPedidoAlInventario(*inventario, *totalLibros, pedido);
-            guardarLibros("../data/libros.txt", *inventario, *totalLibros);
+            guardarLibros("data/libros.txt", *inventario, *totalLibros);
             puts("Inventario actualizado y guardado.");
 
             /* Dejar el pedido limpio y volver al catalogo */

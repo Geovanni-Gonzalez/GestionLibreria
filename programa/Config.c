@@ -82,6 +82,6 @@ int guardarConfig(const char* archivo, Config* cfg) {
 
 int actualizarNumeroSiguientePedido(Config* cfg) {
     cfg->numeroSiguientePedido += 1;
-    return guardarConfig("admin.json", cfg);
+    return guardarConfig("data/admin.json", cfg);
 }
 
