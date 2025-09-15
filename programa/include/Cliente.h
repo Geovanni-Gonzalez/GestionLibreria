@@ -132,4 +132,9 @@ void consultaDeCliente(char* cedula);
  */
 bool eliminarCliente(const char* cedula);
 
+typedef struct Pedido Pedido;
+Pedido* obtenerPedidosPorCliente(char* cedula,
+                                 Pedido* pedidos, int totalPedidos,
+                                 int* outCount);
+
 #endif

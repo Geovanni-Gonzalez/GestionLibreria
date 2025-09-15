@@ -108,7 +108,7 @@ void mostrarLibrosCatalogo(Libro* libros, int totalLibros);
  * @param totalLibros Cantidad de libros en el arreglo.
  * @param autor Nombre del autor a filtrar.
  */
-void filtrarPorAutor(Libro* libros, int totalLibros, const char* autor);
+void filtrarPorAutor(Libro* libros, int totalLibros);
 
 /**
  * @brief Elimina un libro del arreglo según su código.
@@ -132,5 +132,7 @@ void eliminarLibro(Libro** libros, int* totalLibros, const char* codigo);
  * @param autorFiltro Autor a filtrar (opcional). Usar NULL o "" para no filtrar.
  */
 void consultaCatalogo(const char* rutaArchivo, const char* autorFiltro);
+// Se encarga de hacer cambios en el txt de libros
+void guardarLibros(const char* rutaArchivo, Libro* libros, int totalLibros);
 
 #endif /* LIBRO_H */

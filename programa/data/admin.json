@@ -1,9 +1,9 @@
 {
-    "usuario": "admin",
-    "password": "admin123",
-    "nombreLocalComercial": "Libreria Central",
-    "telefono": "555-1234",
-    "cedulaJuridica": "123456789",
-    "horarioAtencion": "Lunes a Viernes 9:00-18:00",
-    "numeroSiguientePedido": 1
+    "nombreLocalComercial":	"Libreria Central",
+	"telefono":	"555-1234",
+	"cedulaJuridica":	"123456789",
+	"horarioAtencion":	"Lunes a Viernes 9:00-18:00",
+	"numeroSiguientePedido":	21,
+	"usuario":	"admin",
+	"password":	"admin123"
 }

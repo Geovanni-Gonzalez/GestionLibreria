@@ -267,3 +267,4 @@ bool eliminarCliente(const char* cedula) {
     printf("Cliente eliminado correctamente.\n");
     return true;
 }
+

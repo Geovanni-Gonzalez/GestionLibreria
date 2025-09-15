@@ -17,6 +17,7 @@
 #include "Pedido.h"
 #include "Libro.h"
 #include "Config.h"
+#include <stddef.h>
 
 
 /**
@@ -105,5 +106,33 @@ int generarCodigoUnicoLibro(Libro* libros, int totalLibros, char* nuevoCodigo);
 int stringAInt(const char* str);
 char* copiarString(const char* src);
 float stringAFloat(const char* str);
+/* Duplica string en heap */
+char* copiarString(const char* src);
+
+/* Recorta espacios al inicio/fin*/
+void  trim(char* s);
+
+/* Lee linea con limite y mensaje. */
+char* leerLineaAlloc(const char* prompt, size_t maxLen);
+
+/* Genera un codigo unico de libro en base al inventario.*/
+int generarCodigoUnicoLibro(Libro* libros, int totalLibros, char* nuevoCodigo);
+
+/* Carga clientes desde archivo a un arreglo dinamico */
+void cargarClientesDesdeArchivo(Cliente** arregloClientes, int* cantActual, int* capArreglo);
+
+/* Aplica un pedido al inventario (descuenta cantidades) y deja el arreglo actualizado. */
+void aplicarPedidoAlInventario(Libro* inventario, int totalLibros, const Pedido* pedido);
+
+/* Lectura segura de linea en buffer fijo (siempre termina en '\0'). */
+void leerLineaSeguro(char *dst, size_t dstSize);
+
+/* Validaciones de formato. */
+bool validarCedula9(const char* s);         // exactamente 9 digitos
+bool validarFechaYYYYMMDD(const char* s);   // 8 digitos: AAAAMMDD
+
+/* Limpiezas de entrada/fin de línea  */
+void limpiar_stdin(void);
+void limpiarFinLinea(char *s);
 
 #endif /* UTILIDADES_H */

@@ -22,37 +22,63 @@ void inicializarArregloPedidos() {
 }
 
 
-/***
+/**
  * @brief Remueve un libro del la lista mientras se crea un pedido.
- * @param codigoLibro Código del libro a remover.
- * @param pedido Puntero al pedido del cual se desea remover el libro.
- * @return void 
+ * @param[in] codigoLibro Código del libro a remover (ej. "L0001").
+ * @param[in,out] pedido Puntero al pedido del cual se desea remover el libro.
+ * @return void
+ * @pre pedido != NULL.
+ * @post Si el libro existía en el pedido:
+ *       - Se libera la memoria de sus cadenas (codigo/titulo/autor).
+ *       - Se compactan arreglos y se reduce `cantidadLibros`.
+ *       - Si el pedido queda vacío, se liberan `pedido->libros` y `pedido->cantidadPorLibro`.
+ * @note No modifica el inventario; sólo el pedido en edición.
  */
 void removerLibroDeListaPedido(char* codigoLibro, Pedido* pedido) {
-    int indice = -1;
+    if (!pedido || pedido->cantidadLibros <= 0) {
+        printf("Pedido vacío.\n");
+        return;
+    }
+
+    int idx = -1;
     for (int i = 0; i < pedido->cantidadLibros; i++) {
-        if (strcmp(pedido->libros[i].codigo, codigoLibro) == 0) {
-            indice = i;
+        if (pedido->libros[i].codigo && strcmp(pedido->libros[i].codigo, codigoLibro) == 0) {
+            idx = i;
             break;
         }
     }
 
-    if (indice == -1) {
+    if (idx == -1) {
         printf("Código de libro no encontrado en el pedido.\n");
         return;
     }
 
+    // liberar strings del libro removido 
+    free(pedido->libros[idx].codigo);
+    free(pedido->libros[idx].titulo);
+    free(pedido->libros[idx].autor);
 
-    if (indice != -1) {
-        for (int i = indice; i < pedido->cantidadLibros - 1; i++) {
-            pedido->libros[i] = pedido->libros[i + 1];
-        }
-        pedido->cantidadLibros--;
-        pedido->libros = realloc(pedido->libros, pedido->cantidadLibros * sizeof(Libro));
+    // compactar ambos arreglos: libros y cantidadPorLibro
+    for (int i = idx; i < pedido->cantidadLibros - 1; i++) {
+        pedido->libros[i] = pedido->libros[i + 1];
+        pedido->cantidadPorLibro[i] = pedido->cantidadPorLibro[i + 1];
+    }
+    pedido->cantidadLibros--;
+
+    if (pedido->cantidadLibros == 0) {
+        // si quedó vacio, libera y anula
+        free(pedido->libros); pedido->libros = NULL;
+        free(pedido->cantidadPorLibro); pedido->cantidadPorLibro = NULL;
+    } else {
+        Libro* nl = realloc(pedido->libros, pedido->cantidadLibros * sizeof(Libro));
+        if (nl) pedido->libros = nl;
+        int* nc = realloc(pedido->cantidadPorLibro, pedido->cantidadLibros * sizeof(int));
+        if (nc) pedido->cantidadPorLibro = nc;
     }
 
     printf("Libro con código %s removido del pedido exitosamente.\n", codigoLibro);
 }
+
 
 
 void mostrarDetallePedido(Pedido* pedido, Config cfg) {
@@ -76,33 +102,258 @@ void mostrarDetallePedido(Pedido* pedido, Config cfg) {
 
 }
 
-void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9], Pedido* arregloPedidos, int* cantidadPedidosActual, Config cfg) {
+/**
+ * @brief Completa/genera un pedido: asigna ID, copia cédula/fecha, calcula totales y lo agrega al arreglo.
+ * @param[in,out] pedido Pedido en edicion; se marcara como generado y con ID asignado.
+ * @param[in] cedulaCliente Cadena (9 dígitos + '\0').
+ * @param[in] fechaPedido Cadena (YYYYMMDD + '\0').
+ * @param[in,out] arregloPedidos Arreglo destino en memoria al que se agrega el pedido.
+ * @param[in,out] cantidadPedidosActual Contador de pedidos; se incrementa en 1.
+ * @param[in,out] cfg Config desde donde se toma "numeroSiguientePedido" para el ID y que luego
+ *                    debe actualizarse fuera de esta funcion.
+ * @return void
+ * @post pedido->generado == true. Se incrementa *cantidadPedidosActual.
+ * @note Esta función **no** persiste el pedido a disco ni descuenta inventario; 
+ */
+void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9],
+                   Pedido* arregloPedidos, int* cantidadPedidosActual, Config* cfg) {
 
-    // 1. Generar ID del pedido
-    char* idGenerado = generarIDPedido(cantidadPedidosActual);
-    strcpy(pedido->id, idGenerado);
-    free(idGenerado);
-    // 2. Asociar cedula y fecha al pedido
+    // 1) Generar ID persistente con el consecutivo de admin.json
+    snprintf(pedido->id, MAX_ID, "P%06d", cfg->numeroSiguientePedido);
+
+    // 2) Asociar cédula y fecha
     strcpy(pedido->cedula, cedulaCliente);
-    strcpy(pedido->fecha, fechaPedido);
+    strcpy(pedido->fecha,  fechaPedido);
 
-    // 3. Se calcula subtotal, impuesto y total
+    // 3) Calcular montos
     calcularPreciosPedido(pedido);
 
-    // 4. Marcar el pedido como generado
+    // 4) Marcar generado
     pedido->generado = true;
 
-    // 5. Descontar el stock de los libros en el pedido
-    descontarStockLibro(pedido->libros, pedido->cantidadPorLibro, pedido->cantidadLibros);
+   
+    // descontarStockLibro(pedido->libros, pedido->cantidadPorLibro, pedido->cantidadLibros);
 
-    // 6. Agregar el pedido al arreglo de pedidos y actualizar la cantidad
+    // 6) Agregar el arreglo en memoria
     arregloPedidos[*cantidadPedidosActual] = *pedido;
-    (*cantidadPedidosActual)+=1;
+    (*cantidadPedidosActual)++;
 
-   //Mostrar detalle del pedido (Generar factura)
-    mostrarDetallePedido(pedido, cfg);
-
+    // 7) Incrementar y persistir el consecutivo para la próxima vez
+    snprintf(pedido->id, MAX_ID, "P%06d", cfg->numeroSiguientePedido);
+    // 8) Mostrar detalle 
+    mostrarDetallePedido(pedido, *cfg);
 }
+
+static char* duplicar(const char* s) {
+    if (!s) return NULL;
+    size_t n = strlen(s);
+    char* p = (char*)malloc(n + 1);
+    if (p) memcpy(p, s, n + 1);
+    return p;
+}
+
+static int buscarLibroPorCodigo(Libro* arr, int n, const char* codigo) {
+    if (!arr || !codigo) return -1;
+    for (int i = 0; i < n; i++)
+        if (arr[i].codigo && strcmp(arr[i].codigo, codigo) == 0) return i;
+    return -1;
+}
+
+/**
+ * @brief Agrega (o acumula) un libro al pedido por codigo y cantidad.
+ * @param[in,out] pedido Pedido en edicion.
+ * @param[in] inventario Arreglo de libros del inventario.
+ * @param[in] totalLibros Tamaño del inventario.
+ * @param[in] codigo Codigo del libro a agregar.
+ * @param[in] cantidad Unidades a agregar (>0).
+ * @return void
+ * @pre cantidad > 0 y debe haber stock suficiente (considerando lo ya pedido).
+ * @post Si el libro ya estaba en el pedido, se acumula; si no, se inserta como nuevo item.
+ * @note Duplica cadenas del libro para mantener una variante temporal independiente del inventario.
+ */
+static void agregarLibroAPedido(Pedido* pedido, Libro* inventario, int totalLibros,
+                                const char* codigo, int cantidad) {
+    if (!pedido || !inventario || !codigo || cantidad <= 0) {
+        printf("Parámetros inválidos.\n"); return;
+    }
+    int idxInv = buscarLibroPorCodigo(inventario, totalLibros, codigo);
+    if (idxInv < 0) { printf("Código no existe en inventario.\n"); return; }
+
+    int idxPed = buscarLibroPorCodigo(pedido->libros, pedido->cantidadLibros, codigo);
+    int ya = (idxPed >= 0) ? pedido->cantidadPorLibro[idxPed] : 0;
+
+    if (inventario[idxInv].cantidad < ya + cantidad) {
+        printf("Stock insuficiente. Disponible: %d\n", inventario[idxInv].cantidad);
+        return;
+    }
+
+    if (idxPed >= 0) {
+        pedido->cantidadPorLibro[idxPed] += cantidad;
+        printf("Actualizado [%s] a %d unidades.\n", codigo, pedido->cantidadPorLibro[idxPed]);
+        return;
+    }
+
+    // insertar nuevo item (copias de las cadenas)
+    Libro* nl = realloc(pedido->libros, (pedido->cantidadLibros + 1) * sizeof(Libro));
+    int*   nc = realloc(pedido->cantidadPorLibro, (pedido->cantidadLibros + 1) * sizeof(int));
+    if (!nl || !nc) {
+        printf("Error de memoria.\n");
+        if (nl) pedido->libros = nl;
+        if (nc) pedido->cantidadPorLibro = nc;
+        return;
+    }
+    pedido->libros = nl;
+    pedido->cantidadPorLibro = nc;
+
+    int pos = pedido->cantidadLibros;
+    pedido->libros[pos].codigo   = duplicar(inventario[idxInv].codigo);
+    pedido->libros[pos].titulo   = duplicar(inventario[idxInv].titulo);
+    pedido->libros[pos].autor    = duplicar(inventario[idxInv].autor);
+    pedido->libros[pos].precio   = inventario[idxInv].precio;
+    pedido->libros[pos].cantidad = 0; 
+
+    pedido->cantidadPorLibro[pos] = cantidad;
+    pedido->cantidadLibros++;
+
+    printf("Agregado [%s] x %d al pedido.\n", codigo, cantidad);
+}
+
+/**
+ * @brief Muestra por consola el contenido actual del pedido en edicion.
+ * @param[in] p Pedido a listar.
+ * @return void
+ */
+static void mostrarPedidoActual(const Pedido* p) {
+    if (!p || p->cantidadLibros == 0) { printf("\nPedido vacío.\n"); return; }
+    printf("\n=== Pedido actual ===\n");
+    float total = 0.0f;
+    for (int i = 0; i < p->cantidadLibros; i++) {
+        float sub = p->libros[i].precio * (float)p->cantidadPorLibro[i];
+        printf("%2d) [%s] %-28s x %d  @ %.2f  => %.2f\n",
+               i+1, p->libros[i].codigo, p->libros[i].titulo ? p->libros[i].titulo : "",
+               p->cantidadPorLibro[i], p->libros[i].precio, sub);
+        total += sub;
+    }
+    printf("Total parcial: %.2f\n", total);
+}
+
+/**
+ * @brief Cambia la cantidad pedida de un libro; si nuevaCantidad==0, lo remueve del pedido.
+ * @param[in,out] pedido Pedido en edicion.
+ * @param[in] inventario Inventario actual (para validar stock).
+ * @param[in] totalLibros Tamaño del inventario.
+ * @param[in] codigo Codigo del libro a modificar.
+ * @param[in] nuevaCantidad Nueva cantidad (>=0).
+ * @return void
+ * @note Si tras remover queda vacio, imprime mensaje y retorna (de esta manera muestra el catalogo y continua el flujo).
+ */
+static void modificarCantidadEnPedido(Pedido* pedido, Libro* inventario, int totalLibros,
+                                      const char* codigo, int nuevaCantidad) {
+    if (!pedido || !inventario || !codigo || nuevaCantidad < 0) {
+        printf("Parámetros inválidos.\n"); return;
+    }
+    if (pedido->cantidadLibros <= 0) {
+        printf("Pedido vacío.\n"); return;
+    }
+
+    int idxPed = buscarLibroPorCodigo(pedido->libros, pedido->cantidadLibros, codigo);
+    if (idxPed < 0) { printf("Ese libro no está en el pedido.\n"); return; }
+
+    if (nuevaCantidad == 0) {
+        removerLibroDeListaPedido((char*)codigo, pedido);
+        if (pedido->cantidadLibros == 0) {
+            printf("Pedido vacío, regresando al catálogo...\n");
+        }
+        return;
+    }
+
+    int idxInv = buscarLibroPorCodigo(inventario, totalLibros, codigo);
+    if (idxInv < 0) { printf("El libro ya no existe en inventario.\n"); return; }
+    if (inventario[idxInv].cantidad < nuevaCantidad) {
+        printf("Stock insuficiente. Disponible: %d\n", inventario[idxInv].cantidad);
+        return;
+    }
+
+    pedido->cantidadPorLibro[idxPed] = nuevaCantidad;
+    printf("Cantidad de [%s] actualizada a %d.\n", codigo, nuevaCantidad);
+}
+
+
+/**
+ * @brief Persiste un pedido al final del archivo TXT en el formato:
+ *        "ID;CEDULA;FECHA;SUBTOTAL;IMPUESTO;TOTAL;GENERADO;CANTIDADLIBROS;{COD:QTY,...}""
+ * @param[in] p Pedido a guardar.
+ * @param[in] rutaArchivo Ruta del archivo ("../y/x.txt").
+ * @return 1 si se guardo OK, 0 si fallo.
+ * @note Abre en modo append ("a"). No escribe inventario ni cliente, solo el pedido.
+ */
+int guardarPedidoTxt(const Pedido* p, const char* rutaArchivo) {
+    if (!p || !rutaArchivo) return 0;
+
+    FILE* f = fopen(rutaArchivo, "a");   // append
+    if (!f) {
+        perror("No se pudo abrir pedidos.txt");
+        return 0;
+    }
+
+    // ID;CEDULA;FECHA;SUBTOTAL;IMPUESTO;TOTAL;GENERADO;CANTIDADLIBROS;{COD:QTY,...}
+    fprintf(f, "%s;%s;%s;%.2f;%.2f;%.2f;%d;%d;{",
+            p->id,
+            p->cedula,
+            p->fecha,
+            p->subtotal,
+            p->impuesto,
+            p->total,
+            p->generado ? 1 : 0,
+            p->cantidadLibros);
+
+    for (int i = 0; i < p->cantidadLibros; i++) {
+        const char* cod = (p->libros[i].codigo ? p->libros[i].codigo : "");
+        int qty = (p->cantidadPorLibro ? p->cantidadPorLibro[i] : 0);
+        fprintf(f, "%s:%d", cod, qty);
+        if (i < p->cantidadLibros - 1) fputc(',', f);
+    }
+
+    fprintf(f, "}\n");
+    fclose(f);
+    return 1;
+}
+
+/**
+ * @brief Deja el pedido en estado “en blanco” y libera toda memoria dinamica asociada.
+ * @param[in,out] p Pedido a limpiar.
+ * @return void
+ * @post p->libros == NULL, p->cantidadPorLibro == NULL, p->cantidadLibros == 0,
+ *       totales en 0, flags e identificadores vacios.
+ */
+void limpiarPedido(Pedido* p) {
+    if (!p) return;
+
+    // Liberar copias hechas al agregar al pedido
+    for (int i = 0; i < p->cantidadLibros; i++) {
+        free(p->libros[i].codigo);
+        free(p->libros[i].titulo);
+        free(p->libros[i].autor);
+        // p->libros[i].precio y cantidad son escalares
+    }
+
+    free(p->libros);
+    free(p->cantidadPorLibro);
+
+    p->libros = NULL;
+    p->cantidadPorLibro = NULL;
+    p->cantidadLibros = 0;
+
+    p->subtotal = 0.0f;
+    p->impuesto = 0.0f;
+    p->total    = 0.0f;
+    p->generado = false;
+
+    p->id[0]     = '\0';
+    p->cedula[0] = '\0';
+    p->fecha[0]  = '\0';
+}
+
 
 Pedido* obtenerPedidosPorCliente(char* cedulaCliente, Pedido* arregloPedidos, int cantidadPedidosActual, int* cantidadPedidosCliente){
     Pedido* pedidosCliente = NULL;
@@ -255,6 +506,8 @@ void seleccionarLibro(Pedido* pedido, const char* codigoLibro, int cantidad) {
     }
 }
 
+
+
 /**
  * @brief Modifica la cantidad de un libro ya presente en el pedido.
  *
@@ -365,4 +618,169 @@ void modificarLibro(Pedido* pedido, const char* codigoLibro, int ajusteCantidad 
         const char* tit = pedido->libros[j].titulo ? pedido->libros[j].titulo : "";
         printf("%s - %s - %.2f (x%d)\n", pedido->libros[j].codigo, tit, pedido->libros[j].precio, pedido->cantidadPorLibro[j]);
     }
+}
+
+//----------------- Menú tras seleccionar libro -----------------
+/**
+ * @brief Menu interactivo para operar sobre el libro seleccionado del catalogo.
+ * @param[in,out] inventario Doble puntero al arreglo de libros en inventario.
+ * @param[in,out] totalLibros Numero de libros en inventario.
+ * @param[in] idxSel Indice del libro actualmente seleccionado en el catalogo.
+ * @param[in,out] pedido Pedido en edicion.
+ * @param[in] cfg Config (se pasa por valor para impresion del detalle).
+ * @param[in,out] arregloPedidos Arreglo de pedidos en memoria (historico de todo el txt).
+ * @param[in,out] cantidadPedidosActual Contador de pedidos de las ejecuciones.
+ * @return void
+ * @details Opciones:
+ *  1) Agregar libro al pedido actual.
+ *  2) Modificar cantidad (0 = remover).
+ *  3) Remover libro por codigo.
+ *  4) Generar pedido (valida cedula/fecha, guarda TXT, actualiza inventario y admin.json).
+ *  5) Salir del menu (volver al catalogo).
+ * @note Si el pedido queda vacio despues de una operacion, se retorna al catalogo automaticamente.
+ */
+void menuPedidoTrasSeleccion(
+    Libro** inventario, int* totalLibros, int idxSel,
+    Pedido* pedido, Config cfg,
+    Pedido* arregloPedidos, int* cantidadPedidosActual
+    ) {
+    if (!inventario || !*inventario || !totalLibros || *totalLibros <= 0 ||
+        !pedido || idxSel < 0 || idxSel >= *totalLibros ||
+        !arregloPedidos || !cantidadPedidosActual) {
+        printf("Parámetros inválidos para el menú de pedido.\n");
+        return;
+    }
+
+    int opcion = 0;
+    char linea[128];
+
+    do {
+        printf("\nLibro seleccionado: [%s] %s  $%.2f  (Stock: %d)\n",
+               (*inventario)[idxSel].codigo,
+               (*inventario)[idxSel].titulo,
+               (*inventario)[idxSel].precio,
+               (*inventario)[idxSel].cantidad);
+
+        mostrarPedidoActual(pedido);
+
+        printf("\n=== Menú de Pedido ===\n");
+        printf("1. Agregar libro a pedido\n");
+        printf("2. Modificar pedido de libro\n");
+        printf("3. Remover libro\n");
+        printf("4. Generar pedido\n");
+        printf("5. Salir\n");
+        printf("Seleccione una opción: ");
+
+        if (!fgets(linea, sizeof(linea), stdin)) { clearerr(stdin); continue; }
+        opcion = atoi(linea);
+
+        switch (opcion) {
+            case 1: {
+                // Agregar el libro actualmente seleccionado
+                printf("Cantidad a agregar: ");
+                if (!fgets(linea, sizeof(linea), stdin)) { clearerr(stdin); break; }
+                int cant = atoi(linea);
+                agregarLibroAPedido(pedido, *inventario, *totalLibros,
+                                    (*inventario)[idxSel].codigo, cant);
+            } break;
+
+            case 2: {
+                char codigo[64];
+                printf("Código del libro a modificar: ");
+                if (!fgets(codigo, sizeof(codigo), stdin)) { clearerr(stdin); break; }
+                limpiarFinLinea(codigo);
+
+                char linea[128];
+                printf("Nueva cantidad (0 para remover): ");
+                if (!fgets(linea, sizeof(linea), stdin)) { clearerr(stdin); break; }
+                int nueva = atoi(linea);
+
+                modificarCantidadEnPedido(pedido, *inventario, *totalLibros, codigo, nueva);
+
+                if (pedido->cantidadLibros == 0) {
+                    return; // Regresa al catalogo
+                }
+            } break;
+
+            case 3: {
+                char codigo[64];
+                printf("Código del libro a remover: ");
+                if (!fgets(codigo, sizeof(codigo), stdin)) { clearerr(stdin); break; }
+                limpiarFinLinea(codigo);
+
+                removerLibroDeListaPedido(codigo, pedido);
+
+                if (pedido->cantidadLibros == 0) {
+                    return;
+                }
+            } break;
+
+        case 4: {
+            if (pedido->generado) {
+                puts("Este pedido ya fue generado y guardado.");
+                break;
+            }
+            if (pedido->cantidadLibros <= 0) {
+                puts("El pedido está vacío.");
+                break;
+            }
+
+            char ced[16], fec[16];
+
+            /* CÉDULA */
+            printf("Cédula (9 dígitos, sin guiones): ");
+            if (!fgets(ced, sizeof(ced), stdin)) { clearerr(stdin); break; }
+            limpiarFinLinea(ced);
+            if (!validarCedula9(ced)) {           
+                puts("Cédula inválida.");
+                break;
+            }
+
+            /* Verificar cliente */
+            Cliente* cli = obtenerClientePorCedula(ced);
+            if (!cli) {
+                puts("Cliente no encontrado. Regístrelo o intente de nuevo.");
+                break; 
+            }
+
+            /* FECHA */
+            printf("Fecha (YYYYMMDD): ");
+            if (!fgets(fec, sizeof(fec), stdin)) { clearerr(stdin); break; }
+            limpiarFinLinea(fec);
+            if (!validarFechaYYYYMMDD(fec)) {     
+                puts("Fecha inválida. Use solo dígitos, formato YYYYMMDD.");
+                break;
+            }
+
+            /* Generar */
+            
+            generarPedido(pedido, ced, fec, arregloPedidos, cantidadPedidosActual, &cfg);
+
+            /* Guardar pedido */
+            guardarPedidoTxt(pedido, "../data/pedidos.txt");
+
+            /* Incrementar correlativo y persistir admin.json */
+            actualizarNumeroSiguientePedido(&cfg);
+            guardarConfig("../data/admin.json", &cfg);
+
+            /* Aplicar al inventario y persistir */
+            aplicarPedidoAlInventario(*inventario, *totalLibros, pedido);
+            guardarLibros("../data/libros.txt", *inventario, *totalLibros);
+            puts("Inventario actualizado y guardado.");
+
+            /* Dejar el pedido limpio y volver al catalogo */
+            limpiarPedido(pedido);
+            return; /* salimos del menu y volvemos al loop del catalogo */
+        } break;
+
+
+            case 5:
+                printf("Saliendo del menú.\n");
+                break;
+
+            default:
+                printf("Opción inválida. Intente de nuevo.\n");
+        }
+
+    } while (opcion != 5);
 }
