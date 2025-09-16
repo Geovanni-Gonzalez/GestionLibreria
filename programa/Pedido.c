@@ -857,3 +857,118 @@ bool libroAsociadoAPedido(const char* codigo, const Pedido* pedidos, int cantida
     }
     return false;
 }
+
+
+// Formato especial para consola, bueno visualmente
+static void print_sep(int w1,int w2,int w3,int w4,int w5){
+    printf("+-%.*s-+-%.*s-+-%.*s-+-%.*s-+-%.*s-+\n",
+        w1, "----------------------------------------",
+        w2, "----------------------------------------",
+        w3, "----------------------------------------",
+        w4, "----------------------------------------",
+        w5, "----------------------------------------");
+}
+// Imprime las filas 
+static void print_row(const char* c1,const char* c2,const char* c3,const char* c4,const char* c5,
+                      int w1,int w2,int w3,int w4,int w5){
+    printf("| %-*.*s | %-*.*s | %-*.*s | %-*.*s | %-*.*s |\n",
+        w1,w1,c1?c1:"", w2,w2,c2?c2:"",
+        w3,w3,c3?c3:"", w4,w4,c4?c4:"",
+        w5,w5,c5?c5:"");
+}
+// Imprime las variables
+void imprimirTablaPedidos(const Pedido* pedidos, int cantidadPedidos){
+    const int W1=10, W2=18, W3=12, W4=12, W5=12;
+    print_sep(W1,W2,W3,W4,W5);
+    print_row("Indice","ID","Fecha","Subtotal","Total", W1,W2,W3,W4,W5);
+    print_sep(W1,W2,W3,W4,W5);
+
+    for(int i=0;i<cantidadPedidos;i++){
+        char bufIdx[16]; snprintf(bufIdx,sizeof bufIdx,"%d",i);
+        char bufSub[32]; snprintf(bufSub,sizeof bufSub,"%.2f", pedidos[i].subtotal);
+        char bufTot[32]; snprintf(bufTot,sizeof bufTot,"%.2f", pedidos[i].total);
+        print_row(bufIdx, pedidos[i].id, pedidos[i].fecha, bufSub, bufTot, W1,W2,W3,W4,W5);
+    }
+    print_sep(W1,W2,W3,W4,W5);
+    puts("Puedes seleccionar por 'indice' (número) o por 'id' (por ejemplo L002).");
+}
+
+// Buscar el pedido por el id, aux
+const Pedido* buscarPedidoPorId(const Pedido* pedidos, int cantidadPedidos, const char* id){
+    if(!pedidos || !id) return NULL;
+    for(int i=0;i<cantidadPedidos;i++){
+        if(pedidos[i].id && strcmp(pedidos[i].id,id)==0) return &pedidos[i];
+    }
+    return NULL;
+}
+
+// Se extraen los pedidos
+int seleccionarPedidoPorIndiceOId(const Pedido* pedidos, int cantidadPedidos){
+    // Devuelve indice (>=0) o -1 si cancela
+    char entrada[64];
+    printf("Selecciona un pedido (indice o id). Enter para cancelar: ");
+    if(!fgets(entrada,sizeof entrada, stdin)) return -1;
+    // trim 
+    size_t n=strlen(entrada); if(n && (entrada[n-1]=='\n'||entrada[n-1]=='\r')) entrada[n-1]='\0';
+    if(entrada[0]=='\0') return -1;
+
+    // ¿es numero?
+    char *end=NULL;
+    long asNum = strtol(entrada,&end,10);
+    if(end && *end=='\0'){ // entero válido
+        if(asNum>=0 && asNum<cantidadPedidos) return (int)asNum;
+        printf("Indice fuera de rango.\n");
+        return -1;
+    }
+
+    // si no es numero, se trata como un id
+    const Pedido* p = buscarPedidoPorId(pedidos,cantidadPedidos,entrada);
+    if(!p){ printf("No se encontró un pedido con id '%s'.\n", entrada); return -1; }
+
+    // convertir puntero a indice
+    int idx = (int)(p - pedidos);
+    return idx;
+}
+
+void listarPedidosCLI(Pedido* pedidos, int cantidadPedidos, Config cfg){
+    if(!pedidos || cantidadPedidos<=0){
+        puts("No hay pedidos para mostrar.");
+        return;
+    }
+
+    puts("\n=== LISTA DE PEDIDOS ===");
+    imprimirTablaPedidos(pedidos, cantidadPedidos);
+
+    int idx = seleccionarPedidoPorIndiceOId(pedidos, cantidadPedidos);
+    if(idx<0){
+        puts("Operación cancelada.");
+        return;
+    }
+
+    // Mostrar encabezado extendido (cliente, fecha, montos)
+    const Pedido* sel = &pedidos[idx];
+    Cliente* cli = obtenerClientePorCedula(sel->cedula);
+    printf("\n--- Encabezado del Pedido ---\n");
+    printf("ID: %s\n",   sel->id);
+    printf("Cliente: %s (%s)\n", cli && cli->nombre ? cli->nombre : "(sin nombre)",
+                                 sel->cedula ? sel->cedula : "");
+    printf("Fecha: %s\n", sel->fecha ? sel->fecha : "");
+    printf("Subtotal: %.2f\nImpuesto: %.2f\nTotal: %.2f\n",
+            sel->subtotal, sel->impuesto, sel->total);
+
+    // Detalle 
+    printf("\n--- Detalle del Pedido ---\n");
+    mostrarDetallePedido((Pedido*)sel, cfg);
+
+    
+    for(int i=0;i<sel->cantidadLibros;i++){
+        const Libro* L = &sel->libros[i];
+        int qty = sel->cantidadPorLibro ? sel->cantidadPorLibro[i] : 0;
+        float sub = (L->precio) * (float)qty;
+        printf("%2d) %s | %s | %.2f x %d = %.2f\n",
+    
+            i+1, L->codigo?L->codigo:"", L->titulo?L->titulo:"",
+               L->precio, qty, sub);
+    }
+    
+}

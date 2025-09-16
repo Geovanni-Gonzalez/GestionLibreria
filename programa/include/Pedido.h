@@ -147,6 +147,14 @@ int* obtenerAniosPedidos(Pedido* arregloPedidos, int cantidadPedidos);
 // Devuelve true si el código aparece en cualquier pedido
 bool libroAsociadoAPedido(const char* codigo, const Pedido* pedidos, int cantidadPedidos);
 
+// Lista en consola todos los pedidos (tabla) y permite seleccionar uno para ver detalle.
+void listarPedidosCLI(Pedido* pedidos, int cantidadPedidos, Config cfg);
+
+// Separa la impresion y la seleccion:
+void imprimirTablaPedidos(const Pedido* pedidos, int cantidadPedidos);
+int  seleccionarPedidoPorIndiceOId(const Pedido* pedidos, int cantidadPedidos);
+const Pedido* buscarPedidoPorId(const Pedido* pedidos, int cantidadPedidos, const char* id);
+
 
 
 
