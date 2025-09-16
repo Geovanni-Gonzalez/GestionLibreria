@@ -51,5 +51,6 @@ void mostrarMontoPorAnios(Estadistica* estadistica);
 void mostrarLibrosMasVendidos(Pedido* arregloPedidos, int cantidadPedidos);
 
 
+void mostrarClientesConMasPedidos(void);
 
 #endif 

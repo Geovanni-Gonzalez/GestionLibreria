@@ -980,3 +980,10 @@ void listarPedidosCLI(Pedido* pedidos, int cantidadPedidos, Config cfg){
     }
     
 }
+
+int pedidos_count(void) { return cantidadPedidosActual; }
+Pedido* pedidos_data(void) { return arregloPedidos; }
+void pedidos_set(Pedido* arr, int n) {
+    arregloPedidos = arr;
+    cantidadPedidosActual = n;
+}

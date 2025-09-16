@@ -154,9 +154,11 @@ int  seleccionarPedidoPorIndiceOId(const Pedido* pedidos, int cantidadPedidos);
 const Pedido* buscarPedidoPorId(const Pedido* pedidos, int cantidadPedidos, const char* id);
 
 
-
-
-
+//accesores
+int pedidos_count(void);
+Pedido* pedidos_data(void);
+//setter 
+void pedidos_set(Pedido* arr, int n);
 
 
 

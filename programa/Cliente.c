@@ -11,6 +11,8 @@ static int cantidadClientesActual = 0;      // Cantidad actual de clientes
 static int capacidadDeClientesArreglo = 2;  // Tamaño inicial del arreglo
 
 
+
+
 void inicializarArregloClientes() {
     arregloClientes = (Cliente*) malloc(capacidadDeClientesArreglo * sizeof(Cliente));
     if (arregloClientes == NULL) {
@@ -268,3 +270,11 @@ bool eliminarCliente(const char* cedula) {
     return true;
 }
 
+
+int clientes_count(void) {
+    return cantidadClientesActual;
+}
+
+Cliente* clientes_data(void) {
+    return arregloClientes;
+}
