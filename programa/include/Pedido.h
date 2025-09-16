@@ -152,7 +152,7 @@ void listarPedidosCLI(Pedido* pedidos, int cantidadPedidos, Config cfg);
 void imprimirTablaPedidos(const Pedido* pedidos, int cantidadPedidos);
 int  seleccionarPedidoPorIndiceOId(const Pedido* pedidos, int cantidadPedidos);
 const Pedido* buscarPedidoPorId(const Pedido* pedidos, int cantidadPedidos, const char* id);
-
+int obtenerMesDeFecha(const char* fecha);
 
 //accesores
 int pedidos_count(void);
