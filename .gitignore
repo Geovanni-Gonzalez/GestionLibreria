@@ -37,3 +37,5 @@ Thumbs.db
 *.user
 *.userosscache
 *.sln.docstates
+
+*nul
