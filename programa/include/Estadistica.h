@@ -53,4 +53,7 @@ void mostrarLibrosMasVendidos(Pedido* arregloPedidos, int cantidadPedidos);
 
 void mostrarClientesConMasPedidos(void);
 
+void mostrarAutorMasVentasPorAnio(void);
+
+
 #endif 
