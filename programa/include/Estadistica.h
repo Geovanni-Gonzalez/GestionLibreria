@@ -1,5 +1,6 @@
 #ifndef ESTADISTICA_H
 #define ESTADISTICA_H
+#include "Pedido.h"
 
 
 typedef struct {
@@ -46,6 +47,8 @@ float calcularMontoTotalDeVentas(Estadistica* estadistica);
 void mostrarPedidosAniosMes(Estadistica* estadistica);
 
 void mostrarMontoPorAnios(Estadistica* estadistica);
+
+void mostrarLibrosMasVendidos(Pedido* arregloPedidos, int cantidadPedidos);
 
 
 
