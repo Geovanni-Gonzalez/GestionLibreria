@@ -135,4 +135,12 @@ bool validarFechaYYYYMMDD(const char* s);   // 8 digitos: AAAAMMDD
 void limpiar_stdin(void);
 void limpiarFinLinea(char *s);
 
+char* obtenerTituloPorCodigo(const char* codigo, Pedido* arregloPedidos, int cantidadPedidos);
+int buscarIndiceLibro(char** codigosLibros, int totalLibros, const char* codigo);
+void agregarLibroEstadistica(char*** codigosLibros, int** cantidadesVendidas, int* totalLibros, const char* codigo, int cantidad);
+void ordenarLibrosVendidos(char** codigosLibros, int* cantidadesVendidas, int totalLibros);
+void mostrarResultados(char** codigosLibros, int* cantidadesVendidas, int totalLibros);
+
+
+
 #endif /* UTILIDADES_H */

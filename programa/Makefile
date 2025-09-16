@@ -1,23 +1,48 @@
+# ------------------------------
+# Configuración general
+# ------------------------------
 TARGET = libreria.exe
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11 -I./include
+CFLAGS = -Wall -Wextra -std=c11 -g -I./include
 
-# Todos los archivos .c en la carpeta raíz
-SRC = $(wildcard *.c)
+SRC = main.c Cliente.c Config.c Estadistica.c Libro.c Pedido.c Utilidades.c cJSON.c 
 OBJ = $(SRC:.c=.o)
 
+# ------------------------------	
+# Regla por defecto
+# ------------------------------
 all: $(TARGET)
 
+# ------------------------------
+# Enlazar el ejecutable con verbose
+# ------------------------------
 $(TARGET): $(OBJ)
-	$(CC) $(OBJ) -o $(TARGET)
+	@echo "Enlazando $(TARGET)..."
+	$(CC) -v $(OBJ) -o $(TARGET)
 
+# ------------------------------
+# Compilar cada .c en su .o
+# ------------------------------
 %.o: %.c
+	@echo "Compilando $<..."
 	$(CC) $(CFLAGS) -c $< -o $@
 
+# ------------------------------
+# Limpiar binarios (Windows o Linux)
+# ------------------------------
 clean:
-	del /Q $(OBJ) $(TARGET) 2>nul || rm -f $(OBJ) $(TARGET)
+	-del /Q $(OBJ) $(TARGET) 2>nul || rm -f $(OBJ) $(TARGET)
 
+# ------------------------------
+# Ejecutar el programa
+# ------------------------------
 run: $(TARGET)
 	./$(TARGET)
 
-.PHONY: all clean run
+# ------------------------------
+# Ejecutar dentro de gdb
+# ------------------------------
+debug: $(TARGET)
+	gdb ./$(TARGET)
+
+.PHONY: all clean run debug

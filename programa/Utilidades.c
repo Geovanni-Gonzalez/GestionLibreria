@@ -453,3 +453,64 @@ void aplicarPedidoAlInventario(Libro* inventario, int totalLibros, const Pedido*
 }
 
 void limpiarFinLinea(char *s) { if (s) s[strcspn(s, "\r\n")] = '\0'; }
+
+char* obtenerTituloPorCodigo(const char* codigo, Pedido* arregloPedidos, int cantidadPedidos) {
+    for (int i = 0; i < cantidadPedidos; i++) {
+        for (int j = 0; j < arregloPedidos[i].cantidadLibros; j++) {
+            if (strcmp(arregloPedidos[i].libros[j].codigo, codigo) == 0) {
+                return arregloPedidos[i].libros[j].titulo ? arregloPedidos[i].libros[j].titulo : "";
+            }
+        }
+    }
+    return "";
+}
+
+
+int buscarIndiceLibro(char** codigosLibros, int totalLibros, const char* codigo) {
+    for (int i = 0; i < totalLibros; i++) {
+        if (strcmp(codigosLibros[i], codigo) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// Agregar un nuevo libro con su cantidad
+void agregarLibroEstadistica(char*** codigosLibros, int** cantidadesVendidas, int* totalLibros, const char* codigo, int cantidad) {
+    *codigosLibros = realloc(*codigosLibros, sizeof(char*) * (*totalLibros + 1));
+    *cantidadesVendidas = realloc(*cantidadesVendidas, sizeof(int) * (*totalLibros + 1));
+
+    (*codigosLibros)[*totalLibros] = malloc(strlen(codigo) + 1);
+    strcpy((*codigosLibros)[*totalLibros], codigo);
+    (*cantidadesVendidas)[*totalLibros] = cantidad;
+
+    (*totalLibros)++;
+}
+
+// Ordenar descendentemente por cantidad usando burbuja
+void ordenarLibrosVendidos(char** codigosLibros, int* cantidadesVendidas, int totalLibros) {
+    for (int i = 0; i < totalLibros - 1; i++) {
+        for (int j = 0; j < totalLibros - i - 1; j++) {
+            if (cantidadesVendidas[j] < cantidadesVendidas[j + 1]) {
+                int tempCantidad = cantidadesVendidas[j];
+                cantidadesVendidas[j] = cantidadesVendidas[j + 1];
+                cantidadesVendidas[j + 1] = tempCantidad;
+
+                char* tempCodigo = codigosLibros[j];
+                codigosLibros[j] = codigosLibros[j + 1];
+                codigosLibros[j + 1] = tempCodigo;
+            }
+        }
+    }
+}
+
+// Mostrar resultados
+void mostrarResultados(char** codigosLibros, int* cantidadesVendidas, int totalLibros) {
+    printf("Libros más vendidos:\n");
+    for (int i = 0; i < totalLibros; i++) {
+        printf("Código: %s, Título: %s, Cantidad: %d\n",
+                codigosLibros[i],
+                obtenerTituloPorCodigo(codigosLibros[i], arregloPedidos, cantidadPedidosActual),
+                cantidadesVendidas[i]);
+    }
+}
