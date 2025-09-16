@@ -126,19 +126,8 @@ int* cantidadPedidos();
 
 int obtenerAnioDeFecha(const char* fecha);
 
-int obtenerMesDeFecha(const char* fecha);
-
 int obtenerMontoPorAnio(int anio, Pedido* arregloPedidos, int cantidadPedidos);
 
 int* obtenerAniosPedidos(Pedido* arregloPedidos, int cantidadPedidos);
-
-
-
-
-
-
-
-
-
 
 #endif /* PEDIDO_H */

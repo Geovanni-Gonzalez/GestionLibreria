@@ -1,5 +1,6 @@
 #ifndef ESTADISTICA_H
 #define ESTADISTICA_H
+#include "Pedido.h"
 
 
 typedef struct {
@@ -21,14 +22,11 @@ typedef struct {
  */
 
 void inicializarEstadistica(Estadistica* estadistica);
-
-
-
-
 void mostrarTotalPedidos(Estadistica* estadistica);
 void mostrarMontoPorAnios(Estadistica* estadistica);
-
 float calcularMontoTotalDeVentas(Estadistica* estadistica);
+void mostrarLibrosMasVendidos(Pedido* arregloPedidos, int cantidadPedidos);
+
 
 
 #endif 

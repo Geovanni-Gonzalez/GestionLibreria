@@ -106,4 +106,12 @@ int stringAInt(const char* str);
 char* copiarString(const char* src);
 float stringAFloat(const char* str);
 
+char* obtenerTituloPorCodigo(const char* codigo, Pedido* arregloPedidos, int cantidadPedidos);
+int buscarIndiceLibro(char** codigosLibros, int totalLibros, const char* codigo);
+void agregarLibroEstadistica(char*** codigosLibros, int** cantidadesVendidas, int* totalLibros, const char* codigo, int cantidad);
+void ordenarLibrosVendidos(char** codigosLibros, int* cantidadesVendidas, int totalLibros);
+void mostrarResultados(char** codigosLibros, int* cantidadesVendidas, int totalLibros);
+
+
+
 #endif /* UTILIDADES_H */

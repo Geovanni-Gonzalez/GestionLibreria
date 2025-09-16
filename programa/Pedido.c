@@ -425,6 +425,3 @@ int* obtenerAniosPedidos(Pedido* arregloPedidos, int cantidadPedidos) {
 
     return anios;
 }
-
-
-
