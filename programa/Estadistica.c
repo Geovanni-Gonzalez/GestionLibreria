@@ -228,3 +228,107 @@ void mostrarClientesConMasPedidos(void) {
 
     free(lista);
 }
+
+typedef struct {
+    char* autor;
+    float monto;
+} AutorMonto;
+
+/* Extrae el año desde una fecha en formato DDMMYYYY (8 caracteres) */
+static int extraer_anio_ddmmyyyy(const char* fecha) {
+    if (!fecha || strlen(fecha) < 8) return -1;
+    return (fecha[4]-'0')*1000 + (fecha[5]-'0')*100
+         + (fecha[6]-'0')*10   + (fecha[7]-'0');
+}
+
+static void acumular(AutorMonto** arr, int* n, int* cap,
+                     const char* autor, float monto) {
+    for (int i = 0; i < *n; i++) {
+        if (strcmp((*arr)[i].autor, autor) == 0) {
+            (*arr)[i].monto += monto;
+            return;
+        }
+    }
+    if (*n == *cap) {
+        int nueva = *cap ? *cap * 2 : 4;
+        AutorMonto* tmp = realloc(*arr, nueva * sizeof(AutorMonto));
+        if (!tmp) { perror("realloc"); return; }
+        *arr = tmp; *cap = nueva;
+    }
+    (*arr)[*n].autor = strdup(autor ? autor : "");
+    (*arr)[*n].monto = monto;
+    (*n)++;
+}
+
+static void liberar(AutorMonto* arr, int n) {
+    for (int i = 0; i < n; i++) free(arr[i].autor);
+    free(arr);
+}
+
+void mostrarAutorMasVentasPorAnio(void) {
+    Pedido* pedidos = pedidos_data();
+    int nPedidos    = pedidos_count();
+    if (!pedidos || nPedidos == 0) {
+        puts("No hay pedidos registrados.");
+        return;
+    }
+
+    puts("\n=== Autor con más ventas por año ===");
+
+    /* Reunir años */
+    int* anios = NULL;
+    int nA = 0, capA = 0;
+    for (int i = 0; i < nPedidos; i++) {
+        int anio = extraer_anio_ddmmyyyy(pedidos[i].fecha);
+        if (anio < 0) continue;
+        int existe = 0;
+        for (int k = 0; k < nA; k++)
+            if (anios[k] == anio) { existe = 1; break; }
+        if (!existe) {
+            if (nA == capA) {
+                int nueva = capA ? capA * 2 : 4;
+                int* tmp = realloc(anios, nueva * sizeof(int));
+                if (!tmp) { perror("realloc"); free(anios); return; }
+                anios = tmp; capA = nueva;
+            }
+            anios[nA++] = anio;
+        }
+    }
+
+    /* Calcular por cada año */
+    for (int a = 0; a < nA; a++) {
+        int anioObjetivo = anios[a];
+        AutorMonto* lista = NULL;
+        int nLista = 0, capLista = 0;
+
+        for (int i = 0; i < nPedidos; i++) {
+            if (extraer_anio_ddmmyyyy(pedidos[i].fecha) != anioObjetivo) continue;
+            for (int j = 0; j < pedidos[i].cantidadLibros; j++) {
+                const char* autor = pedidos[i].libros[j].autor;
+                float precio = pedidos[i].libros[j].precio;
+                int cantidad = pedidos[i].cantidadPorLibro ?
+                               pedidos[i].cantidadPorLibro[j] : 0;
+                acumular(&lista, &nLista, &capLista,
+                         autor ? autor : "(sin autor)",
+                         precio * cantidad);
+            }
+        }
+
+        if (nLista == 0) {
+            printf("Año %d: sin ventas\n", anioObjetivo);
+            continue;
+        }
+
+        int idxMax = 0;
+        for (int i = 1; i < nLista; i++)
+            if (lista[i].monto > lista[idxMax].monto) idxMax = i;
+
+        printf("Año %d: %s (Monto: %.2f)\n",
+               anioObjetivo,
+               lista[idxMax].autor,
+               lista[idxMax].monto);
+
+        liberar(lista, nLista);
+    }
+    free(anios);
+}
