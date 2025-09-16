@@ -1,7 +1,11 @@
 #include "Estadistica.h"
+#include "Cliente.h"
 #include "Pedido.h"
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
 
 void inicializarEstadistica(Estadistica* estadistica) {
     //1. Asigna la cantidad de pedidos totales con una función que retorne la dirección de la variable cantidadPedidosActual en Pedido.c
@@ -51,4 +55,60 @@ void mostrarMontoPorAnios(Estadistica* estadistica) {
 
     //4. Liberar la memoria del arreglo de años
     free(anios);
+}
+// Struct auxiliar solo para este archivo
+typedef struct {
+    Cliente* cliente;
+    int      cantidadPedidos;
+} ClienteConteo;
+static int cmp_conteo_desc(const void* a, const void* b) {
+    const ClienteConteo* ca = a;
+    const ClienteConteo* cb = b;
+    return cb->cantidadPedidos - ca->cantidadPedidos;
+}
+
+void mostrarClientesConMasPedidos(void) {
+    // Obtener vistas a clientes y pedidos
+    int nClientes = clientes_count();
+    Cliente* clientes = clientes_data();
+
+    int nPedidos = pedidos_count();
+    Pedido* pedidos = pedidos_data();
+
+    if (nClientes <= 0 || !clientes) {
+        puts("No hay clientes registrados.");
+        return;
+    }
+
+    // Construir lista de conteos
+    ClienteConteo* lista = (ClienteConteo*)calloc((size_t)nClientes, sizeof(ClienteConteo));
+    if (!lista) { perror("calloc"); return; }
+
+    for (int i = 0; i < nClientes; i++) {
+        int cont = 0;
+        // Contar pedidos que tengan la misma cédula
+        for (int j = 0; j < nPedidos; j++) {
+            if (strcmp(pedidos[j].cedula, clientes[i].cedula) == 0) {
+                cont++;
+            }
+        }
+        lista[i].cliente = &clientes[i];
+        lista[i].cantidadPedidos = cont;
+    }
+
+    // Ordenar de mayor a menor
+    qsort(lista, (size_t)nClientes, sizeof(ClienteConteo), cmp_conteo_desc);
+
+    // Imprimir
+    printf("\n=== Clientes con más pedidos ===\n");
+    printf("%-20s %-12s %s\n", "Nombre", "Cédula", "Pedidos");
+    printf("-----------------------------------------------\n");
+    for (int i = 0; i < nClientes; i++) {
+        printf("%-20s %-12s %d\n",
+               lista[i].cliente->nombre,
+               lista[i].cliente->cedula,
+               lista[i].cantidadPedidos);
+    }
+
+    free(lista);
 }

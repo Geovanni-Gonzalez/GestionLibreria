@@ -137,4 +137,8 @@ Pedido* obtenerPedidosPorCliente(char* cedula,
                                  Pedido* pedidos, int totalPedidos,
                                  int* outCount);
 
+//accesores
+int clientes_count(void);
+Cliente* clientes_data(void);
+
 #endif

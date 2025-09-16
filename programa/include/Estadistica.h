@@ -29,6 +29,6 @@ void mostrarTotalPedidos(Estadistica* estadistica);
 void mostrarMontoPorAnios(Estadistica* estadistica);
 
 float calcularMontoTotalDeVentas(Estadistica* estadistica);
-
+void mostrarClientesConMasPedidos(void);
 
 #endif 
