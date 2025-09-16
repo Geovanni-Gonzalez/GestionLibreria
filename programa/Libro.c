@@ -275,9 +275,42 @@ void filtrarPorAutor(Libro* libros, int totalLibros) {
 }
 
 
+// Elimina del inventario si NO esta asociado a un pedido
 void eliminarLibro(Libro** libros, int* totalLibros, const char* codigo) {
-    // implementacion pendiente
+    if (!libros || !*libros || !totalLibros || !codigo) return;
+
+    int n = *totalLibros;
+    int idx = -1;
+    for (int i = 0; i < n; i++) {
+        if ((*libros)[i].codigo && strcmp((*libros)[i].codigo, codigo) == 0) {
+            idx = i; break;
+        }
+    }
+    if (idx < 0) {
+        printf("Libro [%s] no encontrado.\n", codigo);
+        return;
+    }
+
+    // liberar strings
+    free((*libros)[idx].codigo);
+    free((*libros)[idx].titulo);
+    free((*libros)[idx].autor);
+
+    // compactar
+    for (int i = idx; i < n - 1; i++) {
+        (*libros)[i] = (*libros)[i + 1];
+    }
+    (*totalLibros)--;
+    if (*totalLibros == 0) {
+        free(*libros);
+        *libros = NULL;
+    } else {
+        Libro* tmp = realloc(*libros, sizeof(Libro) * (*totalLibros));
+        if (tmp) *libros = tmp;
+    }
+    printf("Libro [%s] eliminado del inventario.\n", codigo);
 }
+
 // prototipo de asociasion de pedido con libro 
 static int estaAsociadoAPedido(const char* codigo) {
     (void)codigo;

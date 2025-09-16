@@ -845,4 +845,15 @@ int* obtenerAniosPedidos(Pedido* arregloPedidos, int cantidadPedidos) {
 }
 
 
-
+bool libroAsociadoAPedido(const char* codigo, const Pedido* pedidos, int cantidadPedidos) {
+    if (!codigo || !pedidos || cantidadPedidos <= 0) return false;
+    for (int p = 0; p < cantidadPedidos; p++) {
+        const Pedido* ped = &pedidos[p];
+        for (int i = 0; i < ped->cantidadLibros; i++) {
+            if (ped->libros[i].codigo && strcmp(ped->libros[i].codigo, codigo) == 0) {
+                return true;
+            }
+        }
+    }
+    return false;
+}

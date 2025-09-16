@@ -144,6 +144,8 @@ int obtenerMontoPorAnio(int anio, Pedido* arregloPedidos, int cantidadPedidos);
 
 int* obtenerAniosPedidos(Pedido* arregloPedidos, int cantidadPedidos);
 
+// Devuelve true si el código aparece en cualquier pedido
+bool libroAsociadoAPedido(const char* codigo, const Pedido* pedidos, int cantidadPedidos);
 
 
 

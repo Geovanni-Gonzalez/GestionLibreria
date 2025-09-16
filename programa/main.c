@@ -1,101 +1,39 @@
-// main.c
-#include "Libro.h"
 #include "Pedido.h"
-#include "Config.h"
-#include "Utilidades.h"
-#include "Cliente.h"
+#include "Libro.h"
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-
+#include <stdlib.h>   
+#include <string.h>   
 
 int main(void) {
-    // 1) Cargar config
-    Config cfg = (Config){0};
-    if (!cargarConfig("data/admin.json", &cfg)) {
-        printf("No se pudo cargar config.\n");
-        return 1;
+    // 1. Prepara inventario
+    int totalLibros = 2;
+    Libro* inventario = malloc(sizeof(Libro) * totalLibros);
+    inventario[0].codigo = strdup("ABC123");
+    inventario[0].titulo = strdup("Libro de Prueba");
+    inventario[0].autor  = strdup("Autor");
+    inventario[0].precio = 100.0f;
+    inventario[0].cantidad = 5;
+    inventario[1].codigo = strdup("ABC123456");
+    inventario[1].titulo = strdup("Libro de Pruebassssss");
+    inventario[1].autor  = strdup("Autoresssss");
+    inventario[1].precio = 100000.0f;
+    inventario[1].cantidad = 8;
+
+    // 2. Prepara un pedido que contenga el libro
+    Pedido pedidos[1] = {0};
+    pedidos[0].cantidadLibros = 1;
+    pedidos[0].libros = malloc(sizeof(Libro));
+    pedidos[0].libros[0].codigo = strdup("ABC123");
+
+    // 3. Intenta eliminar
+    const char* codigo = "ABC123456";
+    if (libroAsociadoAPedido(codigo, pedidos, 1)) {
+        printf("El libro %s está asociado a un pedido, no se elimina.\n", codigo);
+    } else {
+        eliminarLibro(&inventario, &totalLibros, codigo);
     }
 
-    // 2) Cargar inventario
-    int totalLibros = 0;
-    Libro* inventario = cargarLibros("data/libros.txt", &totalLibros);
-    if (!inventario || totalLibros <= 0) {
-        printf("No hay inventario.\n");
-        return 1;
-    }
-
-
-    // 2.5) CARGAR CLIENTES EN MEMORIA
-    inicializarArregloClientes();
-    extern void mostrarClientes(); 
-    mostrarClientes();
-
-
-    // 3) Preparar pedido en blanco
-    Pedido pedido = {0};
-    pedido.libros = NULL;
-    pedido.cantidadPorLibro = NULL;
-    pedido.cantidadLibros = 0;
-    pedido.generado = false;
-
-    // 4) Arreglo de pedidos
-    Pedido pedidos[100] = {0};
-    int cantidadPedidos = 0;
-
-    // === LOGICA DE SELECCION POR CODIGO ===
-    for (;;) {
-        // Mostrar catalogo resumido
-        printf("\n=== Catalogo (codigo → título, precio, stock) ===\n");
-        for (int i = 0; i < totalLibros; i++) {
-            printf("[%s] %s  $%.2f  (Stock: %d)\n",
-                   inventario[i].codigo,
-                   inventario[i].titulo ? inventario[i].titulo : "",
-                   inventario[i].precio,
-                   inventario[i].cantidad);
-        }
-
-        // Pedir codigo 
-        char entrada[64];
-        printf("Ingrese CODIGO (ENTER para salir): ");
-        if (!fgets(entrada, sizeof(entrada), stdin)) break;
-
-        // Quitar fin de linea
-        entrada[strcspn(entrada, "\r\n")] = '\0';
-        // Recortar espacios 
-        char *start = entrada;
-        while (*start && isspace((unsigned char)*start)) start++;
-        char *end = start + strlen(start);
-        while (end > start && isspace((unsigned char)*(end - 1))) end--;
-        *end = '\0';
-
-        if (start[0] == '\0') break; // usuario sale
-
-        // Buscar indice por codigo
-        int idxSel = -1;
-        for (int i = 0; i < totalLibros; i++) {
-            if (inventario[i].codigo && strcmp(inventario[i].codigo, start) == 0) {
-                idxSel = i;
-                break;
-            }
-        }
-        if (idxSel < 0) {
-            printf("Codigo no encontrado. Intente de nuevo.\n");
-            continue;
-        }
-
-        // Llamar al menu usando el indice encontrado
-        menuPedidoTrasSeleccion(&inventario, &totalLibros, idxSel,
-                                &pedido, cfg, pedidos, &cantidadPedidos);
-        // limpia posibles restos de entrada antes de pedir otro codigo
-        limpiar_stdin();
-
-        // Al salir del menu, el bucle vuelve a listar deja elegir otro codigo o salir.
-    }
-    
-
-    // liberar inventario
-    liberarLibros(inventario, totalLibros);
+    // 4. Comprueba que sigue en inventario
+    printf("Libros restantes: %d\n", totalLibros);
     return 0;
 }
