@@ -514,3 +514,9 @@ void mostrarResultados(char** codigosLibros, int* cantidadesVendidas, int totalL
                 cantidadesVendidas[i]);
     }
 }
+
+void limpiarStdin(void) {
+    int c;
+    // consume todo hasta el próximo '\n' o carcatrer EOF
+    while ((c = getchar()) != '\n' && c != EOF) { /* nada */ }
+}

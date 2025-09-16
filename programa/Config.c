@@ -85,3 +85,10 @@ int actualizarNumeroSiguientePedido(Config* cfg) {
     return guardarConfig("data/admin.json", cfg);
 }
 
+void imprimirNombreLocalComercial(const Config* cfg) {
+    if (cfg && strlen(cfg->nombreLocalComercial) > 0) {
+        printf("=== %s ===\n", cfg->nombreLocalComercial);
+    } else {
+        printf("=== Nombre del Local Comercial no configurado ===\n");
+    }
+}

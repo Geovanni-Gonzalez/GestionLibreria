@@ -140,7 +140,6 @@ int buscarIndiceLibro(char** codigosLibros, int totalLibros, const char* codigo)
 void agregarLibroEstadistica(char*** codigosLibros, int** cantidadesVendidas, int* totalLibros, const char* codigo, int cantidad);
 void ordenarLibrosVendidos(char** codigosLibros, int* cantidadesVendidas, int totalLibros);
 void mostrarResultados(char** codigosLibros, int* cantidadesVendidas, int totalLibros);
-
-
+void limpiarStdin(void);
 
 #endif /* UTILIDADES_H */
