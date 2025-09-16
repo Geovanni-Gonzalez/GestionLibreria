@@ -22,13 +22,31 @@ typedef struct {
 
 void inicializarEstadistica(Estadistica* estadistica);
 
-
-
-
+/**
+ * @brief Muestra un listado detallado de todos los pedidos realizados.
+ *
+ * Formato de salida:
+ *   Total pedidos: N
+ *   Pedido #1
+ *   ID: <id>
+ *   Fecha: <fecha>
+ *   Total: <monto>
+ *   -----------------------------
+ *   Pedido #2
+ *   ...
+ *
+ * Usa el arreglo global de pedidos definido en Pedido.c
+ * @param estadistica Puntero a la estructura de estadísticas (usa totalPedidos ya inicializado).
+ */
 void mostrarTotalPedidos(Estadistica* estadistica);
-void mostrarMontoPorAnios(Estadistica* estadistica);
 
 float calcularMontoTotalDeVentas(Estadistica* estadistica);
+
+// Muestra los pedidos agrupados por mes y año con formato solicitado
+void mostrarPedidosAniosMes(Estadistica* estadistica);
+
+void mostrarMontoPorAnios(Estadistica* estadistica);
+
 
 
 #endif 

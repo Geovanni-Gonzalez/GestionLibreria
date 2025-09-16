@@ -7,6 +7,7 @@
 #include "Libro.h"
 #include "Cliente.h"
 #include "Config.h"
+#include "Estadistica.h"
 
 int main(void) {
     Config cfg = (Config){0};

@@ -19,11 +19,6 @@ void inicializarEstadistica(Estadistica* estadistica) {
 
 }
 
-void mostrarTotalPedidos(Estadistica* estadistica) {
-    printf("Total de Pedidos: %d\n", estadistica->totalPedidos);
-}
-
-
 
 float calcularMontoTotalDeVentas(Estadistica* estadistica) {
     float montoTotal = 0.0f;
@@ -50,5 +45,91 @@ void mostrarMontoPorAnios(Estadistica* estadistica) {
     }
 
     //4. Liberar la memoria del arreglo de años
+    free(anios);
+}
+
+void mostrarTotalPedidos(Estadistica* estadistica) {
+    // Asegurar que el total refleje el estado actual
+    if (estadistica) {
+        estadistica->totalPedidos = cantidadPedidosActual; // sincronia básica
+    }
+
+    printf("Total pedidos: %d\n", cantidadPedidosActual);
+
+    if (cantidadPedidosActual == 0) {
+        printf("No hay pedidos registrados.\n");
+        return;
+    }
+
+    for (int i = 0; i < cantidadPedidosActual; i++) {
+        Pedido *p = &arregloPedidos[i];
+        printf("Pedido #%d\n", i + 1);
+        printf("ID: %s\n", p->id);
+        printf("Fecha: %s\n", p->fecha);
+        printf("Total: %.2f\n", p->total);
+        printf("-----------------------------\n");
+    }
+}
+
+// Imprime los pedidos agrupados por mes y año en el formato requerido
+void mostrarPedidosAniosMes(Estadistica* estadistica) {
+    (void)estadistica; // no estrictamente necesario aquí, pero mantenemos firma similar al resto
+    if (cantidadPedidosActual == 0) {
+        printf("Pedidos por mes y año\n");
+        printf("No hay pedidos registrados.\n");
+        return;
+    }
+
+    // Nombres de los meses en español (1..12)
+    const char* meses[13] = {
+        "", "enero", "febrero", "marzo", "abril", "mayo", "junio",
+        "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+    };
+
+    printf("Pedidos por mes y año\n");
+
+    // Aqui se recorren los años únicos, y para cada año, recorrer meses 1 al 12
+    int* anios = obtenerAniosPedidos(arregloPedidos, cantidadPedidosActual);
+    if (!anios) return;
+
+    int cantidadAnios = 0;
+    for (int i = 0; i < cantidadPedidosActual; i++) {
+        int ai = obtenerAnioDeFecha(arregloPedidos[i].fecha);
+        for (int j = 0; ; j++) {
+            if (j == cantidadAnios) { cantidadAnios++; break; }
+            if (anios[j] == ai) break;
+        }
+    }
+
+    // Para cada año, imprimimos por mes sólo si hay pedidos en ese mes
+    for (int i = 0; i < cantidadAnios; i++) {
+        int anio = anios[i];
+        for (int mes = 1; mes <= 12; mes++) {
+            // Verificar si hay al menos un pedido en (anio, mes)
+            int hay = 0;
+            for (int k = 0; k < cantidadPedidosActual; k++) {
+                if (obtenerAnioDeFecha(arregloPedidos[k].fecha) == anio &&
+                    obtenerMesDeFecha(arregloPedidos[k].fecha) == mes) {
+                    hay = 1; break;
+                }
+            }
+            if (!hay) continue;
+
+            // Encabezado del grupo
+            printf("%s %d\n", meses[mes], anio);
+            printf("ID, Total\n");
+
+            // Listado de pedidos del grupo
+            for (int k = 0; k < cantidadPedidosActual; k++) {
+                if (obtenerAnioDeFecha(arregloPedidos[k].fecha) == anio &&
+                    obtenerMesDeFecha(arregloPedidos[k].fecha) == mes) {
+                    printf("%s, %.2f\n", arregloPedidos[k].id, arregloPedidos[k].total);
+                }
+            }
+
+            printf("\n"); // línea en blanco entre grupos
+        }
+    }
+
     free(anios);
 }

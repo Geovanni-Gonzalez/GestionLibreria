@@ -800,6 +800,14 @@ int obtenerAnioDeFecha(const char* fecha) {
     return atoi(anio);
 }
 
+// Formato fecha DD/MM/AAAA -> extrae MM
+int obtenerMesDeFecha(const char* fecha) {
+    if (fecha == NULL || strlen(fecha) < 5) return -1;
+    char mes[3] = {0};
+    strncpy(mes, fecha + 3, 2);
+    return atoi(mes);
+}
+
 
 int obtenerMontoPorAnio(int anio, Pedido* arregloPedidos, int cantidadPedidos) {
     int montoTotal = 0;
