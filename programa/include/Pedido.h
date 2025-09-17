@@ -72,6 +72,10 @@ extern int cantidadPedidosActual;
  */
 extern int capacidadDePedidosArreglo;
 
+
+void inicializarPedido(Pedido* p);
+
+
 /**
  * @brief Inicializa el arreglo dinámico de pedidos.
  */
@@ -103,7 +107,7 @@ void mostrarDetallePedido(Pedido* pedido, Config cfg);
  * @param codigoLibro Código del libro a agregar.
  * @param cantidad Cantidad solicitada del libro.
  */
-void seleccionarLibro(Pedido* pedido, const char* codigoLibro, int cantidad);
+void seleccionarLibro(Pedido* pedido, const char* codigoLibro, int cantidad, Libro* inventario, int totalLibros, Config configuracion);
 
 /**
  * @brief Modifica la cantidad de un libro en el pedido.

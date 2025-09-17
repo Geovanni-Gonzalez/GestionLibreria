@@ -3,5 +3,5 @@ Número de semestre y año lectivo: 2 Semestre 2025
 Nombre de los estudiantes: Geovanni González Aguilar, Daryll Martinez Rodriguez, Gerny Díaz Hall
 Número de carnet: 2022163324, 2019271231, 2022172980
 Numero de proyecto programado: 1
-Fecha de entrega: 
+Fecha de entrega: 16/09/2025
 Estatus de la entrega: Excelente

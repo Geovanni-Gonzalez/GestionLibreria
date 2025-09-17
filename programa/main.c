@@ -62,6 +62,7 @@ int main(void) {
 
     // Cargar inventario de libros
     Libro* inventario = cargarLibros("data/libros.txt", &totalLibros);
+
     
 
     // Inicializar estructuras de datos
@@ -149,10 +150,45 @@ int main(void) {
                             registrarCliente(cedula, nombre, telefono);
                             break;
 
-                        case 4:
-                            // Lógica para crear pedido
-                            printf("Funcionalidad de crear pedido no implementada aún.\n");
-                            break;
+                        case 4: {
+
+                                // Crear y **inicializar** pedido
+                                Pedido* nuevoPedido = (Pedido*)malloc(sizeof(Pedido));
+                                if (!nuevoPedido) {
+                                    printf("Error al crear el pedido.\n");
+                                    break;
+                                }
+                                inicializarPedido(nuevoPedido); 
+
+                                // Mostrar catálogo de libros
+                                mostrarLibrosCatalogo(inventario, totalLibros);
+
+                                // Ingreso de código y cantidad
+                                char codigoLibro[20];
+                                int cantidadLibro;
+
+                                printf("Ingrese el código del libro a agregar al pedido: ");
+                                fgets(codigoLibro, sizeof(codigoLibro), stdin);
+                                limpiarFinLinea(codigoLibro);
+
+                                printf("Ingrese la cantidad del libro a agregar al pedido: ");
+                                if (scanf("%d", &cantidadLibro) != 1) {
+                                    printf("Cantidad inválida.\n");
+                                    limpiar_stdin();
+                                    // liberarPedido(nuevoPedido);
+                                    free(nuevoPedido);
+                                    break;
+                                }
+                                limpiar_stdin();
+
+                                // Agregar libro al pedido de forma segura
+                                seleccionarLibro(nuevoPedido, codigoLibro, cantidadLibro, inventario, totalLibros, configuracion);
+
+
+                            } break;
+
+
+                        
                         case 5:
                             // Lógica para estadísticas
                             break;

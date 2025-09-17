@@ -17,8 +17,7 @@
 typedef struct {
     int totalPedidos;                  /**< Total de pedidos realizados en el sistema */
     float montoTotalDeVentas;          /**< Monto total acumulado de ventas */
-    int *pedidosPorAnio;               /**< Array dinámico: cantidad de pedidos por año
-                                             EJEMPLO: pedidosPorAnio[0] = cantidad de pedidos en 2020 */
+    int *pedidosPorAnio;               /**< Array dinámico: cantidad de pedidos por año                              EJEMPLO: pedidosPorAnio[0] = cantidad de pedidos en 2020 */
     int *cantidadPedidosPorCliente;    /**< Array dinámico: cantidad de pedidos por cliente */
     int *cantidadVendidaLibro;         /**< Array dinámico: cantidad vendida por libro */
     int cantidadLibros;                /**< Cantidad total de libros en el sistema */
