@@ -53,15 +53,23 @@ void mostrarInfoLibreria(Config cfg) {
 
 
 int main(void) {
+    // Variables principales
+    int totalLibros = 0;
+
     // Cargar configuración inicial
     Config configuracion;
-    Estadistica estadistica;
     cargarConfig("data/admin.json", &configuracion);
+
+        // Cargar inventario de libros
+    Libro* inventario = cargarLibros("data/libros.txt", &totalLibros);
+    
+    
+    // Inicializar estructuras de datos
+    Estadistica estadistica;
     inicializarArregloPedidos();
     inicializarArregloClientes();
     inicializarEstadistica(&estadistica);
-    int* totalLibros = 0;
-    cargarLibros("data/libros.txt", totalLibros);
+    
 
 
 
