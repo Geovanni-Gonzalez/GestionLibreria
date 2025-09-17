@@ -60,10 +60,10 @@ int main(void) {
     Config configuracion;
     cargarConfig("data/admin.json", &configuracion);
 
-        // Cargar inventario de libros
+    // Cargar inventario de libros
     Libro* inventario = cargarLibros("data/libros.txt", &totalLibros);
     
-    
+
     // Inicializar estructuras de datos
     Estadistica estadistica;
     inicializarArregloPedidos();
@@ -71,12 +71,11 @@ int main(void) {
     inicializarEstadistica(&estadistica);
     
 
-
-
-
-
-
+    // Mostrar información inicial de la librería
     mostrarInfoLibreria(configuracion);
+
+
+
     int opcionPrincipal;
     do {
         mostrarMenuPrincipal();
