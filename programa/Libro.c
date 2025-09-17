@@ -171,6 +171,10 @@ void cargarInventario(Libro** libros, int* totalLibros, const char* rutaArchivo)
             printf("Línea %d no procesada: código no encontrado (%s)\n", lineaActual, codigo);
         }
         lineaActual++;
+        
+        guardarLibros("data/libros.txt", *libros, *totalLibros);
+
+
     }
     fclose(archivo);
 }

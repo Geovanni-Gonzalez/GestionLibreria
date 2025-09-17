@@ -1,1 +1,3 @@
-L001;Liga de los pelirrojos;Edgar allan poe;30000.00;20
+L001;SANTA BIBLIA;DIOS;3000.00;75
+L002;Paco lola;nose;392.00;30
+L003;Liga de los pelirrojos;Edgar allan poe;30000.00;20

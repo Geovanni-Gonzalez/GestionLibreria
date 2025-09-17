@@ -23,7 +23,7 @@ void mostrarMenuPrincipal() {
 void mostrarMenuAdministrativo() {
     printf("\n===== MENÚ ADMINISTRATIVO =====\n");
     printf("1. Registrar libros\n");
-    printf("2. Manejo de inventario\n");
+    printf("2. Cargar inventario\n");
     printf("3. Registrar clientes\n");
     printf("4. Crear pedido\n");
     printf("5. Estadísticas\n");
@@ -125,13 +125,30 @@ int main(void) {
                             agregarLibro(&inventario, &totalLibros, titulo, autor, precio, cantidad);
                             break;
                         case 2:
-                            // Lógica para manejo de inventario
-                            printf("Funcionalidad de manejo de inventario no implementada aún.\n");
+                            //Solicita ruta del archivo
+                            printf("Ingrese la ruta del archivo de inventario: ");
+                            char rutaArchivo[200];
+                            fgets(rutaArchivo, sizeof(rutaArchivo), stdin);
+                            limpiarFinLinea(rutaArchivo);
+                            cargarInventario(&inventario, &totalLibros, rutaArchivo);
                             break;
                         case 3:
-                            // Lógica para registrar clientes
-                            printf("Funcionalidad de registrar clientes no implementada aún.\n");
+                            //Solicitar datos del cliente
+                            printf("Ingrese la cédula del cliente: ");
+                            char cedula[20];
+                            fgets(cedula, sizeof(cedula), stdin);
+                            limpiarFinLinea(cedula);
+                            printf("Ingrese el nombre del cliente: ");
+                            char nombre[100];
+                            fgets(nombre, sizeof(nombre), stdin);
+                            limpiarFinLinea(nombre);
+                            printf("Ingrese el teléfono del cliente: ");
+                            char telefono[20];
+                            fgets(telefono, sizeof(telefono), stdin);
+                            limpiarFinLinea(telefono);
+                            registrarCliente(cedula, nombre, telefono);
                             break;
+
                         case 4:
                             // Lógica para crear pedido
                             printf("Funcionalidad de crear pedido no implementada aún.\n");
