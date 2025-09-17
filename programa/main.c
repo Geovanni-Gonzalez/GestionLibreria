@@ -189,8 +189,18 @@ int main(void) {
                         }
                         break;
                     case 2:
-                        // Lógica para consulta de cliente
-                        printf("Funcionalidad de consulta de cliente no implementada aún.\n");
+                        // Consulta de cliente por cédula
+                        {
+                            char cedula[16];
+                            printf("\nConsulta de cliente\n");
+                            printf("Ingrese la cédula del cliente: ");
+                            leerLineaSeguro(cedula, sizeof(cedula));
+                            if (cedula[0] == '\0') {
+                                printf("Cédula vacía. Operación cancelada.\n");
+                            } else {
+                                consultaDeCliente(cedula);
+                            }
+                        }
                         break;
                     case 3:
                         printf("Volviendo al menú principal...\n");
