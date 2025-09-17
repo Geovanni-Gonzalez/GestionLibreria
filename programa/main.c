@@ -175,8 +175,18 @@ int main(void) {
 
                 switch (opcionGeneral) {
                     case 1:
-                        // Lógica para consulta de catálogo
-                        printf("Funcionalidad de consulta de catálogo no implementada aún.\n");
+                        // Consulta de catálogo con filtro opcional por autor
+                        {
+                            char autorFiltro[100];
+                            const char* filtro;
+                            printf("\nConsulta de catálogo\n");
+                            printf("Filtrar por autor (opcional). Deje vacío para ver todos: ");
+                            leerLineaSeguro(autorFiltro, sizeof(autorFiltro));
+
+                            // Si el usuario deja vacío, pasamos NULL para mostrar todo
+                            filtro = (autorFiltro[0] == '\0') ? NULL : autorFiltro;
+                            consultaCatalogo("data/libros.txt", filtro);
+                        }
                         break;
                     case 2:
                         // Lógica para consulta de cliente
