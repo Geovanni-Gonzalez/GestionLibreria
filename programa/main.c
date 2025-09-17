@@ -27,7 +27,8 @@ void mostrarMenuAdministrativo() {
     printf("3. Registrar clientes\n");
     printf("4. Crear pedido\n");
     printf("5. Estadísticas\n");
-    printf("6. Volver al menú principal\n");
+    printf("6. Eliminar Libro\n");
+    printf("7. Volver al menú principal\n");
     printf("Seleccione una opción: ");
 }
 
@@ -156,13 +157,28 @@ int main(void) {
                         case 5:
                             // Lógica para estadísticas
                             break;
-                        case 6:
+                        case 6: {
+                            // Eliminar libro por código y guardar cambios
+                            char codigo[64];
+                            printf("Ingrese el código del libro a eliminar: ");
+                            fgets(codigo, sizeof(codigo), stdin);
+                            limpiarFinLinea(codigo);
+                            if (codigo[0] == '\0') {
+                                printf("Código vacío. Operación cancelada.\n");
+                                break;
+                            }
+                            eliminarLibro(&inventario, &totalLibros, codigo);
+                            // Persistir inventario actualizado
+                            guardarLibros("data/libros.txt", inventario, totalLibros);
+                            break;
+                        }
+                        case 7:
                             printf("Volviendo al menú principal...\n");
                             break;
                         default:
                             printf("Opción inválida. Intente nuevamente.\n");
                     }
-                } while (opcionAdmin != 6);
+                } while (opcionAdmin != 7);
             } else {
                 printf("Usuario o contraseña incorrectos.\n");
             }
