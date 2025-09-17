@@ -130,6 +130,10 @@ void agregarLibro(Libro** libros, int* totalLibros, const char* titulo, const ch
 
     (*totalLibros)++;
     printf("Libro agregado exitosamente: %s - %s\n", nuevoLibro->titulo, nuevoLibro->autor);
+
+    // Persistir automáticamente el inventario actualizado en el archivo de libros
+    // Nota: se usa la ruta por defecto utilizada en el resto del proyecto
+    guardarLibros("data/libros.txt", *libros, *totalLibros);
 }
 
 void cargarInventario(Libro** libros, int* totalLibros, const char* rutaArchivo) {
