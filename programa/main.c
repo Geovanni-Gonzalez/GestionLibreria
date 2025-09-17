@@ -53,10 +53,22 @@ void mostrarInfoLibreria(Config cfg) {
 
 
 int main(void) {
+    // Cargar configuración inicial
     Config configuracion;
+    Estadistica estadistica;
     cargarConfig("data/admin.json", &configuracion);
-    mostrarInfoLibreria(configuracion);
     inicializarArregloPedidos();
+    inicializarArregloClientes();
+    inicializarEstadistica(&estadistica);
+    int* totalLibros = 0;
+    cargarLibros("data/libros.txt", totalLibros);
+
+
+
+
+
+
+    mostrarInfoLibreria(configuracion);
     int opcionPrincipal;
     do {
         mostrarMenuPrincipal();
@@ -82,7 +94,7 @@ int main(void) {
 
                     switch (opcionAdmin) {
                         case 1:
-                            // Lógica para registrar libros
+
                             printf("Funcionalidad de registrar libros no implementada aún.\n");
                             break;
                         case 2:

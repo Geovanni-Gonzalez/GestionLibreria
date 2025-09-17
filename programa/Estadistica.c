@@ -13,23 +13,22 @@ void inicializarEstadistica(Estadistica* estadistica) {
     estadistica->totalPedidos = *cantidadPedidos(); 
     //2. Asigna el monto total de ventas con una función que calcule el monto total de ventas en base al arreglo de pedidos.
     estadistica->montoTotalDeVentas = calcularMontoTotalDeVentas(estadistica);
-    //3. Inicializa el arreglo pedidosPorAnio con memoria dinámica
-
-    //4. Inicializa el arreglo cantidadPedidosPorCliente con memoria dinámica
-
-    //5. Inicializa el arreglo cantidadVendidaLibro con memoria dinámica
-    
-    //6. Asigna la cantidad de libros disponibles en el sistema 
 
 }
 
 
 float calcularMontoTotalDeVentas(Estadistica* estadistica) {
     float montoTotal = 0.0f;
-    for (int i = 0; i < cantidadPedidos; i++) {
+    //Validar que el arreglo de pedidos y la cantidad de pedidos sean válidos
+    if (!arregloPedidos || cantidadPedidosActual <= 0) {
+        return montoTotal; // Retorna 0 si no hay pedidos
+    }
+    //Recorrer el arreglo de pedidos y sumar el total de cada pedido al monto total
+    for (int i = 0; i < cantidadPedidosActual; i++) {
         montoTotal += arregloPedidos[i].total;
     }
-    return montoTotal;  
+
+    return montoTotal;
 }
 
 void mostrarMontoPorAnios(Estadistica* estadistica) {

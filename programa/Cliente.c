@@ -9,7 +9,7 @@
 static Cliente* arregloClientes = NULL;     // Arreglo dinámico
 static int cantidadClientesActual = 0;      // Cantidad actual de clientes
 static int capacidadDeClientesArreglo = 2;  // Tamaño inicial del arreglo
-
+    
 
 
 
