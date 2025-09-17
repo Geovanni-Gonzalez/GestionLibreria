@@ -26,10 +26,10 @@ void mostrarMenuAdministrativo() {
     printf("2. Cargar inventario\n");
     printf("3. Registrar clientes\n");
     printf("4. Crear pedido\n");
-    printf("5. Estadísticas\n");
+    printf("5. Estadistica\n");
     printf("6. Eliminar Libro\n");
     printf("7. Eliminar Cliente\n");
-    printf("8. Volver al menú principal\n");
+    printf("8. Volver\n");
     printf("Seleccione una opción: ");
 }
 
@@ -191,9 +191,14 @@ int main(void) {
 
 
                         
-                        case 5:
-                            // Lógica para estadísticas
+                        case 5: {
+                            // Mostrar estadísticas solicitadas
+                            // 1) Total de ventas agrupado por mes-año
+                            mostrarPedidosAniosMes(&estadistica);
+                            // 2) Autor con más ventas por año
+                            mostrarAutorMasVentasPorAnio();
                             break;
+                        }
                         case 6: {
                             // Eliminar libro por código y guardar cambios
                             char codigo[64];
