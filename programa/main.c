@@ -28,7 +28,8 @@ void mostrarMenuAdministrativo() {
     printf("4. Crear pedido\n");
     printf("5. Estadísticas\n");
     printf("6. Eliminar Libro\n");
-    printf("7. Volver al menú principal\n");
+    printf("7. Eliminar Cliente\n");
+    printf("8. Volver al menú principal\n");
     printf("Seleccione una opción: ");
 }
 
@@ -208,13 +209,28 @@ int main(void) {
                             guardarLibros("data/libros.txt", inventario, totalLibros);
                             break;
                         }
-                        case 7:
+                        case 7: {
+                            // Eliminar cliente por cédula (verifica pedidos asociados dentro de la función)
+                            char cedula[16];
+                            printf("Ingrese la cédula del cliente a eliminar: ");
+                            fgets(cedula, sizeof(cedula), stdin);
+                            limpiarFinLinea(cedula);
+                            if (cedula[0] == '\0') {
+                                printf("Cédula vacía. Operación cancelada.\n");
+                                break;
+                            }
+                            if (!eliminarCliente(cedula)) {
+                                // Mensajes de error ya se imprimen dentro de eliminarCliente
+                            }
+                            break;
+                        }
+                        case 8:
                             printf("Volviendo al menú principal...\n");
                             break;
                         default:
                             printf("Opción inválida. Intente nuevamente.\n");
                     }
-                } while (opcionAdmin != 7);
+                } while (opcionAdmin != 8);
             } else {
                 printf("Usuario o contraseña incorrectos.\n");
             }
