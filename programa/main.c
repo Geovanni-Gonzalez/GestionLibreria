@@ -133,7 +133,22 @@ int main(void) {
                             cargarInventario(&inventario, &totalLibros, rutaArchivo);
                             break;
                         case 3:
-                            
+                            //Solicitar datos del cliente
+                            printf("Ingrese la cédula del cliente: ");
+                            char cedula[20];
+                            fgets(cedula, sizeof(cedula), stdin);
+                            limpiarFinLinea(cedula);
+                            printf("Ingrese el nombre del cliente: ");
+                            char nombre[100];
+                            fgets(nombre, sizeof(nombre), stdin);
+                            limpiarFinLinea(nombre);
+                            printf("Ingrese el teléfono del cliente: ");
+                            char telefono[20];
+                            fgets(telefono, sizeof(telefono), stdin);
+                            limpiarFinLinea(telefono);
+                            registrarCliente(cedula, nombre, telefono);
+                            break;
+
                         case 4:
                             // Lógica para crear pedido
                             printf("Funcionalidad de crear pedido no implementada aún.\n");
