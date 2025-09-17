@@ -101,8 +101,28 @@ int main(void) {
 
                     switch (opcionAdmin) {
                         case 1:
+                            //Solicitar titulo, autor, precio y cantidad
+                            printf("Ingrese el título del libro: ");
+                            char titulo[100];
+                            fgets(titulo, sizeof(titulo), stdin);
+                            limpiarFinLinea(titulo);
 
-                            printf("Funcionalidad de registrar libros no implementada aún.\n");
+                            printf("Ingrese el autor del libro: ");
+                            char autor[100];
+                            fgets(autor, sizeof(autor), stdin);
+                            limpiarFinLinea(autor);
+
+                            printf("Ingrese el precio del libro: ");
+                            float precio;
+                            scanf("%f", &precio);
+                            limpiar_stdin();
+
+                            printf("Ingrese la cantidad del libro: ");
+                            int cantidad;
+                            scanf("%d", &cantidad);
+                            limpiar_stdin();
+
+                            agregarLibro(&inventario, &totalLibros, titulo, autor, precio, cantidad);
                             break;
                         case 2:
                             // Lógica para manejo de inventario
