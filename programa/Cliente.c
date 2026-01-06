@@ -1,6 +1,7 @@
 #include "Cliente.h"
 #include "Utilidades.h"
 #include "Pedido.h"
+#include "Interfaz.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,7 +29,7 @@ bool registrarCliente(const char* cedula, const char* nombre, const char* telefo
         return false;
     }
     if (!validarTelefono(telefono)) {
-        printf("Error: teléfono inválido.\n");
+        imprimirMensajeError("Teléfono inválido.");
         return false;
     }
 
@@ -141,7 +142,7 @@ bool eliminarCliente(const char* cedula) {
     }
 
     if (indiceCliente == -1) {
-        printf("Cliente no encontrado.\n");
+        imprimirMensajeError("Cliente no encontrado.");
         return false;
     }
 
@@ -152,7 +153,7 @@ bool eliminarCliente(const char* cedula) {
     int cantidadPedidosAsociados = 0;
     Pedido* pedidosCliente = obtenerPedidosPorCliente((char*)cedula, arregloPedidos, cantidadPedidosActual, &cantidadPedidosAsociados);
     if (cantidadPedidosAsociados > 0) {
-        printf("No se puede eliminar el cliente: tiene pedidos asociados (%d).\n", cantidadPedidosAsociados);
+        imprimirMensajeError("No se puede eliminar: tiene pedidos asociados.");
         if (pedidosCliente != NULL) {
             free(pedidosCliente);
         }

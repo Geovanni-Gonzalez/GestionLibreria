@@ -6,39 +6,25 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-
 void inicializarEstadistica(Estadistica* estadistica) {
-    //1. Asigna la cantidad de pedidos totales con una función que retorne la dirección de la variable cantidadPedidosActual en Pedido.c
     estadistica->totalPedidos = *cantidadPedidos(); 
-    //2. Asigna el monto total de ventas con una función que calcule el monto total de ventas en base al arreglo de pedidos.
     estadistica->montoTotalDeVentas = calcularMontoTotalDeVentas(estadistica);
-
 }
-
 
 float calcularMontoTotalDeVentas(Estadistica* estadistica) {
     float montoTotal = 0.0f;
-    //Validar que el arreglo de pedidos y la cantidad de pedidos sean válidos
     if (!arregloPedidos || cantidadPedidosActual <= 0) {
-        return montoTotal; // Retorna 0 si no hay pedidos
+        return montoTotal;
     }
-    //Recorrer el arreglo de pedidos y sumar el total de cada pedido al monto total
     for (int i = 0; i < cantidadPedidosActual; i++) {
         montoTotal += arregloPedidos[i].total;
     }
-
     return montoTotal;
 }
 
 void mostrarMontoPorAnios(Estadistica* estadistica) {
-    //1. Obtener los años únicos de los pedidos usando la función obtenerAniosPedidos
     int* anios = obtenerAniosPedidos(arregloPedidos, cantidadPedidosActual);
-
-    //2. Imprimir total de pedidos
     printf("Total de pedidos: %d\n", estadistica->totalPedidos);
-
-    //3. Mostrar el monto total de ventas por año
     for (int i = 0; anios[i] != -1; i++) {
         printf("--------------------------\n");
         int anio = anios[i];
@@ -46,8 +32,6 @@ void mostrarMontoPorAnios(Estadistica* estadistica) {
         printf("Año %d: %.2f\n", anio, monto);
         printf("--------------------------\n");
     }
-
-    //4. Liberar la memoria del arreglo de años
     free(anios);
 }
 
@@ -56,14 +40,12 @@ void mostrarLibrosMasVendidos(Pedido* arregloPedidos, int cantidadPedidos) {
     char** codigosLibros = NULL;
     int totalLibros = 0;
 
-    // 1 y 2: recorrer pedidos y sus libros
     for (int i = 0; i < cantidadPedidos; i++) {
         Pedido pedido = arregloPedidos[i];
         for (int j = 0; j < pedido.cantidadLibros; j++) {
             char* codigo = pedido.libros[j].codigo;
             int cantidad = pedido.cantidadPorLibro[j];
 
-            // 3: verificar si ya existe
             int indice = buscarIndiceLibro(codigosLibros, totalLibros, codigo);
             if (indice != -1) {
                 cantidadesVendidas[indice] += cantidad;
@@ -73,32 +55,25 @@ void mostrarLibrosMasVendidos(Pedido* arregloPedidos, int cantidadPedidos) {
         }
     }
 
-    // 4. Ordenar por cantidad vendida descendente
     ordenarLibrosVendidos(codigosLibros, cantidadesVendidas, totalLibros);
-
-    // 5. Mostrar resultados
     mostrarResultados(codigosLibros, cantidadesVendidas, totalLibros);
 
-    // liberar memoria
     for (int i = 0; i < totalLibros; i++) {
         free(codigosLibros[i]);
     }
     free(codigosLibros);
     free(cantidadesVendidas);
 }
+
 void mostrarTotalPedidos(Estadistica* estadistica) {
-    // Asegurar que el total refleje el estado actual
     if (estadistica) {
-        estadistica->totalPedidos = cantidadPedidosActual; // sincronia básica
+        estadistica->totalPedidos = cantidadPedidosActual;
     }
-
     printf("Total pedidos: %d\n", cantidadPedidosActual);
-
     if (cantidadPedidosActual == 0) {
         printf("No hay pedidos registrados.\n");
         return;
     }
-
     for (int i = 0; i < cantidadPedidosActual; i++) {
         Pedido *p = &arregloPedidos[i];
         printf("Pedido #%d\n", i + 1);
@@ -109,24 +84,18 @@ void mostrarTotalPedidos(Estadistica* estadistica) {
     }
 }
 
-// Imprime los pedidos agrupados por mes y año en el formato requerido
 void mostrarPedidosAniosMes(Estadistica* estadistica) {
-    (void)estadistica; // no estrictamente necesario aquí, pero mantenemos firma similar al resto
+    (void)estadistica;
     if (cantidadPedidosActual == 0) {
         printf("Pedidos por mes y año\n");
         printf("No hay pedidos registrados.\n");
         return;
     }
-
-    // Nombres de los meses en español (1..12)
     const char* meses[13] = {
         "", "enero", "febrero", "marzo", "abril", "mayo", "junio",
         "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
     };
-
     printf("Pedidos por mes y año\n");
-
-    // Aqui se recorren los años únicos, y para cada año, recorrer meses 1 al 12
     int* anios = obtenerAniosPedidos(arregloPedidos, cantidadPedidosActual);
     if (!anios) return;
 
@@ -138,12 +107,9 @@ void mostrarPedidosAniosMes(Estadistica* estadistica) {
             if (anios[j] == ai) break;
         }
     }
-
-    // Para cada año, imprimimos por mes sólo si hay pedidos en ese mes
     for (int i = 0; i < cantidadAnios; i++) {
         int anio = anios[i];
         for (int mes = 1; mes <= 12; mes++) {
-            // Verificar si hay al menos un pedido en (anio, mes)
             int hay = 0;
             for (int k = 0; k < cantidadPedidosActual; k++) {
                 if (obtenerAnioDeFecha(arregloPedidos[k].fecha) == anio &&
@@ -152,30 +118,25 @@ void mostrarPedidosAniosMes(Estadistica* estadistica) {
                 }
             }
             if (!hay) continue;
-
-            // Encabezado del grupo
             printf("%s %d\n", meses[mes], anio);
             printf("ID, Total\n");
-
-            // Listado de pedidos del grupo
             for (int k = 0; k < cantidadPedidosActual; k++) {
                 if (obtenerAnioDeFecha(arregloPedidos[k].fecha) == anio &&
                     obtenerMesDeFecha(arregloPedidos[k].fecha) == mes) {
                     printf("%s, %.2f\n", arregloPedidos[k].id, arregloPedidos[k].total);
                 }
             }
-
-            printf("\n"); // línea en blanco entre grupos
+            printf("\n");
         }
     }
-
     free(anios);
 }
-// Struct auxiliar solo para este archivo
+
 typedef struct {
     Cliente* cliente;
     int      cantidadPedidos;
 } ClienteConteo;
+
 static int cmp_conteo_desc(const void* a, const void* b) {
     const ClienteConteo* ca = a;
     const ClienteConteo* cb = b;
@@ -183,25 +144,18 @@ static int cmp_conteo_desc(const void* a, const void* b) {
 }
 
 void mostrarClientesConMasPedidos(void) {
-    // Obtener vistas a clientes y pedidos
     int nClientes = clientes_count();
     Cliente* clientes = clientes_data();
-
     int nPedidos = pedidos_count();
     Pedido* pedidos = pedidos_data();
-
     if (nClientes <= 0 || !clientes) {
         puts("No hay clientes registrados.");
         return;
     }
-
-    // Construir lista de conteos
     ClienteConteo* lista = (ClienteConteo*)calloc((size_t)nClientes, sizeof(ClienteConteo));
     if (!lista) { perror("calloc"); return; }
-
     for (int i = 0; i < nClientes; i++) {
         int cont = 0;
-        // Contar pedidos que tengan la misma cédula
         for (int j = 0; j < nPedidos; j++) {
             if (strcmp(pedidos[j].cedula, clientes[i].cedula) == 0) {
                 cont++;
@@ -210,11 +164,7 @@ void mostrarClientesConMasPedidos(void) {
         lista[i].cliente = &clientes[i];
         lista[i].cantidadPedidos = cont;
     }
-
-    // Ordenar de mayor a menor
     qsort(lista, (size_t)nClientes, sizeof(ClienteConteo), cmp_conteo_desc);
-
-    // Imprimir
     printf("\n=== Clientes con más pedidos ===\n");
     printf("%-20s %-12s %s\n", "Nombre", "Cédula", "Pedidos");
     printf("-----------------------------------------------\n");
@@ -224,7 +174,6 @@ void mostrarClientesConMasPedidos(void) {
                lista[i].cliente->cedula,
                lista[i].cantidadPedidos);
     }
-
     free(lista);
 }
 
@@ -233,7 +182,6 @@ typedef struct {
     float monto;
 } AutorMonto;
 
-/* Extrae el año desde una fecha en formato DDMMYYYY (8 caracteres) */
 static int extraer_anio_ddmmyyyy(const char* fecha) {
     if (!fecha || strlen(fecha) < 8) return -1;
     return (fecha[4]-'0')*1000 + (fecha[5]-'0')*100
@@ -271,10 +219,7 @@ void mostrarAutorMasVentasPorAnio(void) {
         puts("No hay pedidos registrados.");
         return;
     }
-
     puts("\n=== Autor con más ventas por año ===");
-
-    /* Reunir años */
     int* anios = NULL;
     int nA = 0, capA = 0;
     for (int i = 0; i < nPedidos; i++) {
@@ -293,41 +238,115 @@ void mostrarAutorMasVentasPorAnio(void) {
             anios[nA++] = anio;
         }
     }
-
-    /* Calcular por cada año */
     for (int a = 0; a < nA; a++) {
         int anioObjetivo = anios[a];
         AutorMonto* lista = NULL;
         int nLista = 0, capLista = 0;
-
         for (int i = 0; i < nPedidos; i++) {
             if (extraer_anio_ddmmyyyy(pedidos[i].fecha) != anioObjetivo) continue;
             for (int j = 0; j < pedidos[i].cantidadLibros; j++) {
                 const char* autor = pedidos[i].libros[j].autor;
                 float precio = pedidos[i].libros[j].precio;
                 int cantidad = pedidos[i].cantidadPorLibro ?
-                               pedidos[i].cantidadPorLibro[j] : 0;
+                                pedidos[i].cantidadPorLibro[j] : 0;
                 acumular(&lista, &nLista, &capLista,
                          autor ? autor : "(sin autor)",
                          precio * cantidad);
             }
         }
-
         if (nLista == 0) {
             printf("Año %d: sin ventas\n", anioObjetivo);
             continue;
         }
-
         int idxMax = 0;
         for (int i = 1; i < nLista; i++)
             if (lista[i].monto > lista[idxMax].monto) idxMax = i;
-
         printf("Año %d: %s (Monto: %.2f)\n",
                anioObjetivo,
                lista[idxMax].autor,
                lista[idxMax].monto);
-
         liberar(lista, nLista);
     }
     free(anios);
+}
+
+void mostrarMejorClientePorMonto(void) {
+    int nClientes = clientes_count();
+    Cliente* clientes = clientes_data();
+    int nPedidos = pedidos_count();
+    Pedido* pedidos = pedidos_data();
+    if (nClientes <= 0 || !clientes) {
+        puts("No hay clientes registrados.");
+        return;
+    }
+    float maxMonto = -1.0f;
+    int idxMejor = -1;
+    for (int i = 0; i < nClientes; i++) {
+        float montoActual = 0.0f;
+        for (int j = 0; j < nPedidos; j++) {
+            if (strcmp(pedidos[j].cedula, clientes[i].cedula) == 0) {
+                montoActual += pedidos[j].total;
+            }
+        }
+        if (montoActual > maxMonto) {
+            maxMonto = montoActual;
+            idxMejor = i;
+        }
+    }
+    if (idxMejor != -1) {
+        printf("\n--- Cliente con mayor inversión ---\n");
+        printf("Nombre: %s\n", clientes[idxMejor].nombre);
+        printf("Cédula: %s\n", clientes[idxMejor].cedula);
+        printf("Monto Total: %.2f\n", maxMonto);
+        printf("------------------------------------\n");
+    }
+}
+
+void mostrarLibroMasRentable(void) {
+    int nPedidos = pedidos_count();
+    Pedido* pedidos = pedidos_data();
+    if (nPedidos <= 0) {
+        puts("No hay pedidos para analizar rentabilidad.");
+        return;
+    }
+    typedef struct {
+        char codigo[64];
+        float totalIngresos;
+    } LibroRentabilidad;
+    LibroRentabilidad* lista = NULL;
+    int nL = 0, cap = 0;
+    for (int i = 0; i < nPedidos; i++) {
+        for (int j = 0; j < pedidos[i].cantidadLibros; j++) {
+            char* cod = pedidos[i].libros[j].codigo;
+            float ingreso = pedidos[i].libros[j].precio * (pedidos[i].cantidadPorLibro ? pedidos[i].cantidadPorLibro[j] : 0);
+            int hallado = 0;
+            for (int k = 0; k < nL; k++) {
+                if (strcmp(lista[k].codigo, cod) == 0) {
+                    lista[k].totalIngresos += ingreso;
+                    hallado = 1;
+                    break;
+                }
+            }
+            if (!hallado) {
+                if (nL == cap) {
+                    cap = cap ? cap * 2 : 4;
+                    lista = realloc(lista, cap * sizeof(LibroRentabilidad));
+                }
+                strncpy(lista[nL].codigo, cod, 63);
+                lista[nL].totalIngresos = ingreso;
+                nL++;
+            }
+        }
+    }
+    if (nL > 0) {
+        int idxMax = 0;
+        for (int i = 1; i < nL; i++) {
+            if (lista[i].totalIngresos > lista[idxMax].totalIngresos) idxMax = i;
+        }
+        printf("\n--- Libro más rentable (Mayores Ingresos) ---\n");
+        printf("Código: %s\n", lista[idxMax].codigo);
+        printf("Ingresos Totales: %.2f\n", lista[idxMax].totalIngresos);
+        printf("---------------------------------------------\n");
+    }
+    free(lista);
 }

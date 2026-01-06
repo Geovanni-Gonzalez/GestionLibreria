@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include "Interfaz.h"
 
 // Declaración de variables globales accesibles externamente
 Pedido* arregloPedidos = NULL;     // Arreglo dinámico
@@ -57,7 +58,7 @@ void removerLibroDeListaPedido(char* codigoLibro, Pedido* pedido) {
     }
 
     if (idx == -1) {
-        printf("Código de libro no encontrado en el pedido.\n");
+        imprimirMensajeError("Libro no encontrado en el pedido.");
         return;
     }
 
@@ -93,19 +94,33 @@ void mostrarDetallePedido(Pedido* pedido, Config cfg) {
     Cliente* cliente = obtenerClientePorCedula(pedido->cedula);
     if (!cliente) {
         printf("Cliente no encontrado.\n");
-        return;
+        // return;  // Comentado para permitir ver pedidos huérfanos si se borró cliente forzosamente
     }
 
     printf("\n--- DETALLE PEDIDO ---\n");
     printf("ID del Pedido: %s\n", pedido->id);
     printf("Fecha: %s\n", pedido->fecha);
-    printf("Cliente: %s (Cédula: %s, Tel: %s)\n", cliente->nombre, cliente->cedula, cliente->telefono);
+    if (cliente)
+        printf("Cliente: %s (Cédula: %s, Tel: %s)\n", cliente->nombre, cliente->cedula, cliente->telefono);
+    else 
+        printf("Cliente: (Cédula %s no encontrada)\n", pedido->cedula);
+        
     printf("Subtotal: %.2f\n", pedido->subtotal);
     printf("Impuesto (13%%): %.2f\n", pedido->impuesto);
     printf("Total: %.2f\n", pedido->total);
     printf("--- %s ---\n", cfg.nombreLocalComercial);
     printf("Teléfono: %s | Cédula Jurídica: %s\n", cfg.telefono, cfg.cedulaJuridica);
     printf("Horario de Atención: %s\n", cfg.horarioAtencion);
+    printf("----------------------\n");
+    
+    // Listar items
+    for(int i=0; i<pedido->cantidadLibros; i++) {
+        printf(" - [%s] %s x%d = %.2f\n", 
+            pedido->libros[i].codigo, 
+            pedido->libros[i].titulo ? pedido->libros[i].titulo : "", 
+            pedido->cantidadPorLibro[i], 
+            pedido->libros[i].precio * pedido->cantidadPorLibro[i]);
+    }
     printf("----------------------\n");
 
 }
@@ -124,7 +139,7 @@ void mostrarDetallePedido(Pedido* pedido, Config cfg) {
  * @note Esta función **no** persiste el pedido a disco ni descuenta inventario; 
  */
 void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9],
-                   Pedido* arregloPedidos, int* cantidadPedidosActual, Config* cfg) {
+                   Config* cfg) {
 
     // 1) Generar ID persistente con el consecutivo de admin.json
     snprintf(pedido->id, MAX_ID, "P%06d", cfg->numeroSiguientePedido);
@@ -143,8 +158,14 @@ void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9],
     // descontarStockLibro(pedido->libros, pedido->cantidadPorLibro, pedido->cantidadLibros);
 
     // 6) Agregar el arreglo en memoria
-    arregloPedidos[*cantidadPedidosActual] = *pedido;
-    (*cantidadPedidosActual)++;
+    if (cantidadPedidosActual >= capacidadDePedidosArreglo) {
+        capacidadDePedidosArreglo *= 2;
+        Pedido* tmp = realloc(arregloPedidos, capacidadDePedidosArreglo * sizeof(Pedido));
+        if(!tmp) { perror("realloc pedidos"); exit(1); }
+        arregloPedidos = tmp; 
+    }
+    arregloPedidos[cantidadPedidosActual] = *pedido;
+    cantidadPedidosActual++;
 
     // 7) Incrementar y persistir el consecutivo para la próxima vez
     snprintf(pedido->id, MAX_ID, "P%06d", cfg->numeroSiguientePedido);
@@ -185,13 +206,13 @@ static void agregarLibroAPedido(Pedido* pedido, Libro* inventario, int totalLibr
         printf("Parámetros inválidos.\n"); return;
     }
     int idxInv = buscarLibroPorCodigo(inventario, totalLibros, codigo);
-    if (idxInv < 0) { printf("Código no existe en inventario.\n"); return; }
+    if (idxInv < 0) { imprimirMensajeError("El código no existe en el inventario."); return; }
 
     int idxPed = buscarLibroPorCodigo(pedido->libros, pedido->cantidadLibros, codigo);
     int ya = (idxPed >= 0) ? pedido->cantidadPorLibro[idxPed] : 0;
 
     if (inventario[idxInv].cantidad < ya + cantidad) {
-        printf("Stock insuficiente. Disponible: %d\n", inventario[idxInv].cantidad);
+        imprimirMensajeError("Stock insuficiente.");
         return;
     }
 
@@ -462,7 +483,7 @@ void seleccionarLibro(Pedido* pedido, const char* codigoLibro, int cantidad, Lib
                pedido->libros[j].precio,
                pedido->cantidadPorLibro[j]);
     }
-    menuPedidoTrasSeleccion(&inventario, &totalLibros, 0, pedido, configuracion, arregloPedidos, &cantidadPedidosActual);
+    menuPedidoTrasSeleccion(&inventario, &totalLibros, 0, pedido, configuracion);
 }
 
 
@@ -593,7 +614,7 @@ void modificarLibro(Pedido* pedido, const char* codigoLibro, int ajusteCantidad 
  * @return void
  * @details Opciones:
  *  1) Agregar libro al pedido actual.
- *  2) Modificar cantidad (0 = remover).
+ *  2) Modificar pedido de libro.
  *  3) Remover libro por codigo.
  *  4) Generar pedido (valida cedula/fecha, guarda TXT, actualiza inventario y admin.json).
  *  5) Salir del menu (volver al catalogo).
@@ -601,12 +622,10 @@ void modificarLibro(Pedido* pedido, const char* codigoLibro, int ajusteCantidad 
  */
 void menuPedidoTrasSeleccion(
     Libro** inventario, int* totalLibros, int idxSel,
-    Pedido* pedido, Config cfg,
-    Pedido* arregloPedidos, int* cantidadPedidosActual
+    Pedido* pedido, Config cfg
     ) {
     if (!inventario || !*inventario || !totalLibros || *totalLibros <= 0 ||
-        !pedido || idxSel < 0 || idxSel >= *totalLibros ||
-        !arregloPedidos || !cantidadPedidosActual) {
+        !pedido || idxSel < 0 || idxSel >= *totalLibros) {
         printf("Parámetros inválidos para el menú de pedido.\n");
         return;
     }
@@ -714,7 +733,7 @@ void menuPedidoTrasSeleccion(
 
             /* Generar */
             
-            generarPedido(pedido, ced, fec, arregloPedidos, cantidadPedidosActual, &cfg);
+            generarPedido(pedido, ced, fec, &cfg);
 
             /* Guardar pedido */
             guardarPedidoTxt(pedido, "data/pedidos.txt");
@@ -799,150 +818,249 @@ int* obtenerAniosPedidos(Pedido* arregloPedidos, int cantidadPedidos) {
         }
         if (!existe) {
             anios = realloc(anios, sizeof(int) * (*cantidadAnios + 1));
-            if (!anios) {
-                printf("Error al asignar memoria para los años.\n");
-                *cantidadAnios = 0;
-                return NULL;
-            }
             anios[*cantidadAnios] = anio;
             (*cantidadAnios)++;
         }
     }
-
+    
+    // Add -1 sentinel
+    anios = realloc(anios, sizeof(int) * (*cantidadAnios + 1));
+    anios[*cantidadAnios] = -1;
+    
+    free(cantidadAnios);
     return anios;
 }
 
-
 bool libroAsociadoAPedido(const char* codigo, const Pedido* pedidos, int cantidadPedidos) {
-    if (!codigo || !pedidos || cantidadPedidos <= 0) return false;
-    for (int p = 0; p < cantidadPedidos; p++) {
-        const Pedido* ped = &pedidos[p];
-        for (int i = 0; i < ped->cantidadLibros; i++) {
-            if (ped->libros[i].codigo && strcmp(ped->libros[i].codigo, codigo) == 0) {
-                return true;
-            }
+    if (!codigo || !pedidos) return false;
+    for (int i = 0; i < cantidadPedidos; i++) {
+        for (int j = 0; j < pedidos[i].cantidadLibros; j++) {
+            if (strcmp(pedidos[i].libros[j].codigo, codigo) == 0) return true;
         }
     }
     return false;
 }
 
+// ============================================
+// FUNCIONES NUEVAS PARA CUMPLIMIENTO EXTRA
+// ============================================
 
-// Formato especial para consola, bueno visualmente
-static void print_sep(int w1,int w2,int w3,int w4,int w5){
-    printf("+-%.*s-+-%.*s-+-%.*s-+-%.*s-+-%.*s-+\n",
-        w1, "----------------------------------------",
-        w2, "----------------------------------------",
-        w3, "----------------------------------------",
-        w4, "----------------------------------------",
-        w5, "----------------------------------------");
-}
-// Imprime las filas 
-static void print_row(const char* c1,const char* c2,const char* c3,const char* c4,const char* c5,
-                      int w1,int w2,int w3,int w4,int w5){
-    printf("| %-*.*s | %-*.*s | %-*.*s | %-*.*s | %-*.*s |\n",
-        w1,w1,c1?c1:"", w2,w2,c2?c2:"",
-        w3,w3,c3?c3:"", w4,w4,c4?c4:"",
-        w5,w5,c5?c5:"");
-}
-// Imprime las variables
-void imprimirTablaPedidos(const Pedido* pedidos, int cantidadPedidos){
-    const int W1=10, W2=18, W3=12, W4=12, W5=12;
-    print_sep(W1,W2,W3,W4,W5);
-    print_row("Indice","ID","Fecha","Subtotal","Total", W1,W2,W3,W4,W5);
-    print_sep(W1,W2,W3,W4,W5);
-
-    for(int i=0;i<cantidadPedidos;i++){
-        char bufIdx[16]; snprintf(bufIdx,sizeof bufIdx,"%d",i);
-        char bufSub[32]; snprintf(bufSub,sizeof bufSub,"%.2f", pedidos[i].subtotal);
-        char bufTot[32]; snprintf(bufTot,sizeof bufTot,"%.2f", pedidos[i].total);
-        print_row(bufIdx, pedidos[i].id, pedidos[i].fecha, bufSub, bufTot, W1,W2,W3,W4,W5);
-    }
-    print_sep(W1,W2,W3,W4,W5);
-    puts("Puedes seleccionar por 'indice' (número) o por 'id' (por ejemplo L002).");
-}
-
-// Buscar el pedido por el id, aux
-const Pedido* buscarPedidoPorId(const Pedido* pedidos, int cantidadPedidos, const char* id){
-    if(!pedidos || !id) return NULL;
-    for(int i=0;i<cantidadPedidos;i++){
-        if(pedidos[i].id && strcmp(pedidos[i].id,id)==0) return &pedidos[i];
-    }
-    return NULL;
-}
-
-// Se extraen los pedidos
-int seleccionarPedidoPorIndiceOId(const Pedido* pedidos, int cantidadPedidos){
-    // Devuelve indice (>=0) o -1 si cancela
-    char entrada[64];
-    printf("Selecciona un pedido (indice o id). Enter para cancelar: ");
-    if(!fgets(entrada,sizeof entrada, stdin)) return -1;
-    // trim 
-    size_t n=strlen(entrada); if(n && (entrada[n-1]=='\n'||entrada[n-1]=='\r')) entrada[n-1]='\0';
-    if(entrada[0]=='\0') return -1;
-
-    // ¿es numero?
-    char *end=NULL;
-    long asNum = strtol(entrada,&end,10);
-    if(end && *end=='\0'){ // entero válido
-        if(asNum>=0 && asNum<cantidadPedidos) return (int)asNum;
-        printf("Indice fuera de rango.\n");
-        return -1;
-    }
-
-    // si no es numero, se trata como un id
-    const Pedido* p = buscarPedidoPorId(pedidos,cantidadPedidos,entrada);
-    if(!p){ printf("No se encontró un pedido con id '%s'.\n", entrada); return -1; }
-
-    // convertir puntero a indice
-    int idx = (int)(p - pedidos);
-    return idx;
-}
-
-void listarPedidosCLI(Pedido* pedidos, int cantidadPedidos, Config cfg){
-    if(!pedidos || cantidadPedidos<=0){
-        puts("No hay pedidos para mostrar.");
+void guardarTodosLosPedidos(const char* rutaArchivo, Pedido* pedidos, int cantidad) {
+    // Abrir en modo escritura para sobrescribir
+    FILE* f = fopen(rutaArchivo, "w");
+    if (!f) {
+        imprimirMensajeError("No se pudo abrir pedidos.txt para sobrescribir.");
         return;
     }
+    // No guardamos cabecera, solo pedidos. Si existiera cabecera, habría que respetarla.
+    // El formato usado en guardarPedidoTxt es directo.
 
-    puts("\n=== LISTA DE PEDIDOS ===");
-    imprimirTablaPedidos(pedidos, cantidadPedidos);
+    for (int i = 0; i < cantidad; i++) {
+        // Reutilizamos formato: ID;CEDULA;FECHA;SUBTOTAL;IMPUESTO;TOTAL;GENERADO;CANTIDADLIBROS;{COD:QTY,...}
+        fprintf(f, "%s;%s;%s;%.2f;%.2f;%.2f;%d;%d;{",
+            pedidos[i].id,
+            pedidos[i].cedula,
+            pedidos[i].fecha,
+            pedidos[i].subtotal,
+            pedidos[i].impuesto,
+            pedidos[i].total,
+            pedidos[i].generado ? 1 : 0,
+            pedidos[i].cantidadLibros);
 
-    int idx = seleccionarPedidoPorIndiceOId(pedidos, cantidadPedidos);
-    if(idx<0){
-        puts("Operación cancelada.");
-        return;
+        for (int j = 0; j < pedidos[i].cantidadLibros; j++) {
+            const char* cod = (pedidos[i].libros[j].codigo ? pedidos[i].libros[j].codigo : "");
+            int qty = (pedidos[i].cantidadPorLibro ? pedidos[i].cantidadPorLibro[j] : 0);
+            fprintf(f, "%s:%d", cod, qty);
+            if (j < pedidos[i].cantidadLibros - 1) fputc(',', f);
+        }
+        fprintf(f, "}\n");
     }
-
-    // Mostrar encabezado extendido (cliente, fecha, montos)
-    const Pedido* sel = &pedidos[idx];
-    Cliente* cli = obtenerClientePorCedula(sel->cedula);
-    printf("\n--- Encabezado del Pedido ---\n");
-    printf("ID: %s\n",   sel->id);
-    printf("Cliente: %s (%s)\n", cli && cli->nombre ? cli->nombre : "(sin nombre)",
-                                 sel->cedula ? sel->cedula : "");
-    printf("Fecha: %s\n", sel->fecha ? sel->fecha : "");
-    printf("Subtotal: %.2f\nImpuesto: %.2f\nTotal: %.2f\n",
-            sel->subtotal, sel->impuesto, sel->total);
-
-    // Detalle 
-    printf("\n--- Detalle del Pedido ---\n");
-    mostrarDetallePedido((Pedido*)sel, cfg);
-
-    
-    for(int i=0;i<sel->cantidadLibros;i++){
-        const Libro* L = &sel->libros[i];
-        int qty = sel->cantidadPorLibro ? sel->cantidadPorLibro[i] : 0;
-        float sub = (L->precio) * (float)qty;
-        printf("%2d) %s | %s | %.2f x %d = %.2f\n",
-    
-            i+1, L->codigo?L->codigo:"", L->titulo?L->titulo:"",
-               L->precio, qty, sub);
-    }
-    
+    fclose(f);
 }
 
-int pedidos_count(void) { return cantidadPedidosActual; }
-Pedido* pedidos_data(void) { return arregloPedidos; }
+bool eliminarPedido(const char* idPedido, Libro* inventario, int totalLibros) {
+    if (!idPedido || !arregloPedidos) return false;
+
+    int idx = -1;
+    for (int i = 0; i < cantidadPedidosActual; i++) {
+        if (strcmp(arregloPedidos[i].id, idPedido) == 0) {
+            idx = i; break;
+        }
+    }
+
+    if (idx == -1) {
+        imprimirMensajeError("Pedido no encontrado.");
+        return false;
+    }
+
+    // 1. Revertir stock
+    revertirPedidoDelInventario(inventario, totalLibros, &arregloPedidos[idx]);
+
+    // 2. Liberar memoria interna del pedido eliminado
+    // Ojo: limpiarPedido libera punteros, pero aquí queremos liberar y luego shiftear la struct
+    // Mejor llamar a una versión que libere sus arrays
+    for(int k=0; k<arregloPedidos[idx].cantidadLibros; k++) {
+        free(arregloPedidos[idx].libros[k].codigo);
+        free(arregloPedidos[idx].libros[k].titulo);
+        free(arregloPedidos[idx].libros[k].autor);
+    }
+    free(arregloPedidos[idx].libros);
+    free(arregloPedidos[idx].cantidadPorLibro);
+
+    // 3. Compactar arreglo
+    for (int i = idx; i < cantidadPedidosActual - 1; i++) {
+        arregloPedidos[i] = arregloPedidos[i + 1];
+    }
+    cantidadPedidosActual--;
+
+    // 4. Guardar cambios en disco
+    guardarTodosLosPedidos("data/pedidos.txt", arregloPedidos, cantidadPedidosActual);
+
+    // 5. Guardar inventario actualizado (importante!)
+    guardarLibros("data/libros.txt", inventario, totalLibros);
+
+    return true;
+}
+
+bool modificarPedido(const char* idPedido, Libro* inventario, int totalLibros, Config cfg) {
+    if (!idPedido || !arregloPedidos) return false;
+
+    // Buscar pedido
+    int idx = -1;
+    for (int i = 0; i < cantidadPedidosActual; i++) {
+        if (strcmp(arregloPedidos[i].id, idPedido) == 0) {
+            idx = i; break;
+        }
+    }
+    if (idx == -1) {
+        imprimirMensajeError("Pedido no encontrado.");
+        return false;
+    }
+
+    // Mostrar detalle actual
+    Pedido* p = &arregloPedidos[idx];
+    mostrarDetallePedido(p, cfg);
+
+    printf("\n=== MODO EDICIÓN DE PEDIDO ===\n");
+    printf("Solo se permite modificar cantidades de libros existentes.\n");
+    printf("Para agregar libros, elimine el pedido y cree uno nuevo.\n");
+    
+    char codigoLibro[64];
+    printf("Ingrese el código del libro a modificar: ");
+    leerLineaSeguro(codigoLibro, sizeof(codigoLibro));
+    
+    if (codigoLibro[0] == '\0') {
+        imprimirMensajeInfo("Operación cancelada.");
+        return false;
+    }
+
+    // Buscar libro en pedido
+    int idxLibroEnPedido = -1;
+    for(int i=0; i<p->cantidadLibros; i++) {
+        if(strcmp(p->libros[i].codigo, codigoLibro) == 0) {
+            idxLibroEnPedido = i; break;
+        }
+    }
+    if(idxLibroEnPedido == -1) {
+        imprimirMensajeError("El libro no está en este pedido.");
+        return false;
+    }
+
+    int cantidadVieja = p->cantidadPorLibro[idxLibroEnPedido];
+    printf("Cantidad actual: %d\n", cantidadVieja);
+    printf("Nueva cantidad (0 para borrar): ");
+    char buf[32];
+    leerLineaSeguro(buf, sizeof(buf));
+    int cantidadNueva = atoi(buf);
+    
+    if(cantidadNueva < 0) {
+        imprimirMensajeError("Cantidad no válida.");
+        return false;
+    }
+
+    // Calcular diferencia para el stock
+    int diferencia = cantidadNueva - cantidadVieja; 
+    // Si diferencia > 0, necesito mas stock (disminuye inventario)
+    // Si diferencia < 0, devuelvo stock (aumenta inventario)
+
+    if (diferencia == 0) {
+        imprimirMensajeInfo("Sin cambios.");
+        return true;
+    }
+
+    // Validar stock si aumento
+    if (diferencia > 0) {
+        // buscar en inventario
+        int foundInv = -1;
+        for(int k=0; k<totalLibros; k++) {
+            if(strcmp(inventario[k].codigo, codigoLibro)==0) {
+                foundInv = k; break;
+            }
+        }
+        
+        if(foundInv == -1) {
+            imprimirMensajeError("Error crítico: libro no en inventario principal.");
+            return false;
+        }
+        if(inventario[foundInv].cantidad < diferencia) {
+            imprimirMensajeError("Stock insuficiente para el aumento.");
+            return false;
+        }
+        // Aplicar
+        inventario[foundInv].cantidad -= diferencia;
+    } else {
+        // Devuelvo stock
+        int foundInv = -1;
+        for(int k=0; k<totalLibros; k++) {
+            if(strcmp(inventario[k].codigo, codigoLibro)==0) {
+                foundInv = k; break;
+            }
+        }
+        if(foundInv != -1) {
+            inventario[foundInv].cantidad += (-diferencia); // diferencia is negative
+        }
+    }
+
+    // Aplicar cambio al pedido
+    if (cantidadNueva == 0) {
+        // Remover libro logic (simplified version of `removerLibroDeListaPedido` but on existing struct)
+        // ... actually `removerLibroDeListaPedido` works on `Pedido*`, so we can reuse it? 
+        // Yes, but `removerLibroDeListaPedido` prints messages.
+        // Also we must free memory carefully.
+        // Let's update manually to be safe.
+        // free strings
+        free(p->libros[idxLibroEnPedido].codigo);
+        free(p->libros[idxLibroEnPedido].titulo);
+        free(p->libros[idxLibroEnPedido].autor);
+        // compact
+        for(int i=idxLibroEnPedido; i<p->cantidadLibros-1; i++) {
+            p->libros[i] = p->libros[i+1];
+            p->cantidadPorLibro[i] = p->cantidadPorLibro[i+1];
+        }
+        p->cantidadLibros--;
+    } else {
+        p->cantidadPorLibro[idxLibroEnPedido] = cantidadNueva;
+    }
+
+    // Recalcular totales
+    calcularPreciosPedido(p);
+
+    // Guardar TODO
+    guardarTodosLosPedidos("data/pedidos.txt", arregloPedidos, cantidadPedidosActual);
+    guardarLibros("data/libros.txt", inventario, totalLibros);
+
+    imprimirMensajeExito("Pedido modificado y guardado.");
+    return true;
+}
+
+int pedidos_count(void) {
+    return cantidadPedidosActual;
+}
+
+Pedido* pedidos_data(void) {
+    return arregloPedidos;
+}
+
 void pedidos_set(Pedido* arr, int n) {
     arregloPedidos = arr;
     cantidadPedidosActual = n;

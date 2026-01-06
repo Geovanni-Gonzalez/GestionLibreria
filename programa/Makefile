@@ -5,7 +5,7 @@ TARGET = libreria.exe
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c11 -g -I./include
 
-SRC = main.c Cliente.c Config.c Estadistica.c Libro.c Pedido.c Utilidades.c cJSON.c 
+SRC = main.c Cliente.c Config.c Estadistica.c Libro.c Pedido.c Utilidades.c cJSON.c Interfaz.c
 OBJ = $(SRC:.c=.o)
 
 # ------------------------------	

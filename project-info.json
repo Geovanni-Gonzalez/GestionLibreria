@@ -1,0 +1,33 @@
+{
+    "project": "Gestión de Librería Premium TUI",
+    "tech": [
+        "C (C11)",
+        "ANSI Terminal Styling",
+        "Standard I/O",
+        "JSON Persistence"
+    ],
+    "features": [
+        "Premium ANSI Visual Identity",
+        "ASCII Art Library Banners",
+        "Advanced Business Statistics (Top selling, Most active client)",
+        "Robust File Persistence (Inventory, Clients, Orders)",
+        "Smooth Screen Transitions & Clean UX",
+        "Multi-module Architecture (Clean Code)"
+    ],
+    "stack": {
+        "language": "C",
+        "framework": "Native ANSI TUI",
+        "tools": [
+            "GCC",
+            "GNU Make",
+            "Git",
+            "cJSON Library"
+        ],
+        "database": "Structured JSON & Text Files"
+    },
+    "screenshots": [],
+    "description": {
+        "es": "Aplicación profesional de gestión de librería con una interfaz TUI premium, estadísticas avanzadas de negocio y persistencia de datos robusta, diseñada para máxima eficiencia en terminal.",
+        "en": "Professional bookstore management application with a premium TUI interface, advanced business statistics, and robust data persistence, designed for maximum efficiency in the terminal."
+    }
+}

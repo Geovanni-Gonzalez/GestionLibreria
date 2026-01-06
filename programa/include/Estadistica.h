@@ -97,4 +97,14 @@ void mostrarClientesConMasPedidos(void);
  */
 void mostrarAutorMasVentasPorAnio(void);
 
+/**
+ * @brief Muestra el cliente que ha invertido más dinero en la librería.
+ */
+void mostrarMejorClientePorMonto(void);
+
+/**
+ * @brief Muestra el libro que ha generado mayores ingresos.
+ */
+void mostrarLibroMasRentable(void);
+
 #endif

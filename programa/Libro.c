@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "Utilidades.h"
+#include "Interfaz.h"
+#include "Pedido.h" // Necesario para validación de pedidos
 
 #define MAX_LINEA 256
 
@@ -96,7 +98,7 @@ void agregarLibro(Libro** libros, int* totalLibros, const char* titulo, const ch
     // Validar unicidad del título y autor (puede cambiarse por código si se requiere)
     for (int i = 0; i < *totalLibros; i++) {
         if (strcmp((*libros)[i].titulo, titulo) == 0 && strcmp((*libros)[i].autor, autor) == 0) {
-            printf("El libro ya existe en el inventario.\n");
+            imprimirMensajeError("El libro ya existe en el inventario.");
             return;
         }
     }
@@ -310,6 +312,12 @@ void filtrarPorAutor(Libro* libros, int totalLibros) {
 }
 
 
+// prototipo de asociasion de pedido con libro 
+static int estaAsociadoAPedido(const char* codigo) {
+    if (!codigo) return 0;
+    return libroAsociadoAPedido(codigo, arregloPedidos, cantidadPedidosActual) ? 1 : 0;
+}
+
 // Elimina del inventario si NO esta asociado a un pedido
 void eliminarLibro(Libro** libros, int* totalLibros, const char* codigo) {
     if (!libros || !*libros || !totalLibros || !codigo) return;
@@ -322,7 +330,12 @@ void eliminarLibro(Libro** libros, int* totalLibros, const char* codigo) {
         }
     }
     if (idx < 0) {
-        printf("Libro [%s] no encontrado.\n", codigo);
+        imprimirMensajeError("Libro no encontrado.");
+        return;
+    }
+
+    if (estaAsociadoAPedido(codigo)) {
+        imprimirMensajeError("No se puede eliminar: el libro está en pedidos activos.");
         return;
     }
 
@@ -344,13 +357,9 @@ void eliminarLibro(Libro** libros, int* totalLibros, const char* codigo) {
         if (tmp) *libros = tmp;
     }
     printf("Libro [%s] eliminado del inventario.\n", codigo);
+    imprimirMensajeExito("Inventario actualizado.");
 }
 
-// prototipo de asociasion de pedido con libro 
-static int estaAsociadoAPedido(const char* codigo) {
-    (void)codigo;
-    return 0; 
-}
 
 void guardarLibros(const char* rutaArchivo, Libro* libros, int totalLibros) {
     FILE* f = fopen(rutaArchivo, "w");

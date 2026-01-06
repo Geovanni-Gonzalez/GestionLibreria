@@ -452,6 +452,24 @@ void aplicarPedidoAlInventario(Libro* inventario, int totalLibros, const Pedido*
     }
 }
 
+void revertirPedidoDelInventario(Libro* inventario, int totalLibros, const Pedido* pedido) {
+    if (!inventario || totalLibros <= 0 || !pedido || pedido->cantidadLibros <= 0) return;
+
+    for (int i = 0; i < pedido->cantidadLibros; i++) {
+        const char* cod = pedido->libros[i].codigo;
+        int sumar = pedido->cantidadPorLibro[i];
+
+        for (int j = 0; j < totalLibros; j++) {
+            if (inventario[j].codigo && strcmp(inventario[j].codigo, cod) == 0) {
+                if (sumar > 0) {
+                    inventario[j].cantidad += sumar;
+                }
+                break;
+            }
+        }
+    }
+}
+
 void limpiarFinLinea(char *s) { if (s) s[strcspn(s, "\r\n")] = '\0'; }
 
 char* obtenerTituloPorCodigo(const char* codigo, Pedido* arregloPedidos, int cantidadPedidos) {

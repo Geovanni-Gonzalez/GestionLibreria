@@ -128,11 +128,9 @@ void modificarLibro(Pedido* pedido, const char* codigoLibro, int ajusteCantidad)
  * @param pedido Puntero al pedido a generar.
  * @param cedulaCliente Cédula del cliente asociado.
  * @param fechaPedido Fecha del pedido.
- * @param arregloPedidos Arreglo global de pedidos.
- * @param cantidadPedidosActual Puntero a la cantidad de pedidos actual.
  * @param cfg Configuración del sistema.
  */
-void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9], Pedido* arregloPedidos, int* cantidadPedidosActual, Config* cfg);
+void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9], Config* cfg);
 
 /**
  * @brief Muestra un menú para agregar, modificar o remover libros de un pedido tras la selección.
@@ -142,12 +140,9 @@ void generarPedido(Pedido* pedido, char cedulaCliente[10], char fechaPedido[9], 
  * @param idxSel Índice del libro seleccionado.
  * @param pedido Puntero al pedido en construcción.
  * @param cfg Configuración del sistema.
- * @param arregloPedidos Arreglo global de pedidos.
- * @param cantidadPedidosActual Puntero a la cantidad actual de pedidos.
  */
 void menuPedidoTrasSeleccion(Libro** inventario, int* totalLibros, int idxSel,
-                             Pedido* pedido, Config cfg,
-                             Pedido* arregloPedidos, int* cantidadPedidosActual);
+                             Pedido* pedido, Config cfg);
 
 /**
  * @brief Guarda un pedido en un archivo de texto.
@@ -164,6 +159,37 @@ int guardarPedidoTxt(const Pedido* pedido, const char* rutaArchivo);
  * @param p Puntero al pedido a limpiar.
  */
 void limpiarPedido(Pedido* p);
+
+/**
+ * @brief Elimina un pedido del sistema, revirtiendo el stock y actualizando el archivo.
+ *
+ * @param idPedido ID del pedido a eliminar (ej. "P000001").
+ * @param inventario Puntero al arreglo de inventario (para revertir stock).
+ * @param totalLibros Cantidad de libros en inventario.
+ * @return true si se eliminó, false si no se encontró o hubo error.
+ */
+bool eliminarPedido(const char* idPedido, Libro* inventario, int totalLibros);
+
+/**
+ * @brief Guarda TODOS los pedidos actuales en el archivo (sobrescribe).
+ * Útil tras eliminar o modificar.
+ *
+ * @param rutaArchivo Ruta del archivo.
+ * @param pedidos Arreglo de pedidos.
+ * @param cantidad Cantidad de pedidos.
+ */
+void guardarTodosLosPedidos(const char* rutaArchivo, Pedido* pedidos, int cantidad);
+
+/**
+ * @brief Modifica un pedido existente (cambiar cantidades).
+ *
+ * @param idPedido ID del pedido.
+ * @param inventario Inventario para validar/revertir stock.
+ * @param totalLibros Cantidad de libros.
+ * @param cfg Configuración para mostrar detalles.
+ * @return true si se modificó, false si canceló o error.
+ */
+bool modificarPedido(const char* idPedido, Libro* inventario, int totalLibros, Config cfg);
 
 /**
  * @brief Obtiene el arreglo de cantidades de pedidos (auxiliar).

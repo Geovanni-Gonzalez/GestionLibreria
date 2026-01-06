@@ -149,6 +149,15 @@ char* leerLineaAlloc(const char* prompt, size_t maxLen);
 void aplicarPedidoAlInventario(Libro* inventario, int totalLibros, const Pedido* pedido);
 
 /**
+ * @brief Revierta el descuento de stock de un pedido (aumenta stock).
+ *
+ * @param inventario Arreglo de libros del inventario.
+ * @param totalLibros Cantidad total de libros.
+ * @param pedido Pedido a revertir.
+ */
+void revertirPedidoDelInventario(Libro* inventario, int totalLibros, const Pedido* pedido);
+
+/**
  * @brief Lectura segura de una línea en un buffer fijo.
  *
  * @param dst Destino donde se guardará la línea.
