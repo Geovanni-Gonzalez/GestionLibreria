@@ -1,33 +1,56 @@
 {
-    "project": "Gestión de Librería Premium TUI",
-    "tech": [
-        "C (C11)",
-        "ANSI Terminal Styling",
-        "Standard I/O",
-        "JSON Persistence"
-    ],
-    "features": [
-        "Premium ANSI Visual Identity",
-        "ASCII Art Library Banners",
-        "Advanced Business Statistics (Top selling, Most active client)",
-        "Robust File Persistence (Inventory, Clients, Orders)",
-        "Smooth Screen Transitions & Clean UX",
-        "Multi-module Architecture (Clean Code)"
-    ],
-    "stack": {
-        "language": "C",
-        "framework": "Native ANSI TUI",
-        "tools": [
-            "GCC",
-            "GNU Make",
-            "Git",
-            "cJSON Library"
+    "en": {
+        "tech": [
+            "C (C11)",
+            "ANSI Terminal Styling",
+            "File Persistence",
+            "Business Logic"
         ],
-        "database": "Structured JSON & Text Files"
+        "features": [
+            "Premium ANSI Visual Identity",
+            "ASCII Art Library Banners",
+            "Advanced Business Statistics (Top selling, Most active client)",
+            "Robust File Persistence (Inventory, Clients, Orders)",
+            "Multi-module Architecture (Clean Code)"
+        ],
+        "stack": {
+            "language": "C",
+            "framework": "Native ANSI TUI",
+            "tools": [
+                "GCC",
+                "GNU Make",
+                "cJSON"
+            ],
+            "database": "Structured JSON & Text Files"
+        },
+        "screenshots": [],
+        "description": "A professional-grade bookstore management system built in C, prioritizing terminal efficiency and visual clarity. The application features a modular architecture that manages complex relationships between inventories, clients, and orders through robust JSON persistence. It provides enterprise-level insights, such as real-time sales statistics and customer activity tracking, all delivered through a premium TUI (Text User Interface) that proves console apps can be both powerful and aesthetically pleasing."
     },
-    "screenshots": [],
-    "description": {
-        "es": "Aplicación profesional de gestión de librería con una interfaz TUI premium, estadísticas avanzadas de negocio y persistencia de datos robusta, diseñada para máxima eficiencia en terminal.",
-        "en": "Professional bookstore management application with a premium TUI interface, advanced business statistics, and robust data persistence, designed for maximum efficiency in the terminal."
+    "es": {
+        "tech": [
+            "C (C11)",
+            "Estilo de Terminal ANSI",
+            "Persistencia en Archivos",
+            "Lógica de Negocios"
+        ],
+        "features": [
+            "Identidad Visual ANSI Premium",
+            "Báners de Librería en ASCII Art",
+            "Estadísticas de Negocio Avanzadas",
+            "Persistencia en Archivos Robusta",
+            "Arquitectura Multi-módulo (Código Limpio)"
+        ],
+        "stack": {
+            "language": "C",
+            "framework": "TUI ANSI Nativa",
+            "tools": [
+                "GCC",
+                "GNU Make",
+                "cJSON"
+            ],
+            "database": "Archivos JSON y Texto"
+        },
+        "screenshots": [],
+        "description": "Un sistema de gestión de librerías de nivel profesional desarrollado en C, priorizando la eficiencia en terminal y la claridad visual. La aplicación cuenta con una arquitectura modular que gestiona relaciones complejas entre inventarios, clientes y pedidos mediante una robusta persistencia en JSON. Proporciona análisis de nivel empresarial, como estadísticas de ventas en tiempo real e informes de actividad de clientes, todo presentado a través de una TUI premium que demuestra que las aplicaciones de consola pueden ser potentes y estéticamente atractivas."
     }
 }
