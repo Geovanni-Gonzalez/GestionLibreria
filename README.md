@@ -1,5 +1,7 @@
 ﻿# Gestión Librería
 
+[![CI](https://github.com/Geovanni-Gonzalez/GestionLibreria/actions/workflows/ci.yml/badge.svg)](https://github.com/Geovanni-Gonzalez/GestionLibreria/actions/workflows/ci.yml)
+
 ## Descripción
 Sistema de gestión de librería en C con módulos para libros, clientes, pedidos, estadísticas, configuración e interfaz.
 
@@ -31,9 +33,9 @@ Implementé módulos, estructuras de datos y operaciones de archivo.
 ```bash
 cd GestionLibreria/programa
 make
-./gestión_librería
+./libreria
 ```
-El ejecutable puede variar según el Makefile.
+En Windows, el Makefile genera `libreria.exe`.
 
 ## Estructura del proyecto
 - programa/*.c: módulos
