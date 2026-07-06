@@ -12,6 +12,7 @@ void inicializarEstadistica(Estadistica* estadistica) {
 }
 
 float calcularMontoTotalDeVentas(Estadistica* estadistica) {
+    (void)estadistica;
     float montoTotal = 0.0f;
     if (!arregloPedidos || cantidadPedidosActual <= 0) {
         return montoTotal;

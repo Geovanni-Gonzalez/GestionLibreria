@@ -120,7 +120,7 @@ void cargarClientesDesdeArchivo(Cliente** arregloClientes, int* cantActual, int*
 /**
  * @brief Extrae libros y cantidades de un pedido.
  */
-static bool extraerLibrosPedido(char* linea, Libro** libros, int** cantidades, int cantidadLibros) {
+static bool extraerLibrosPedido(Libro** libros, int** cantidades, int cantidadLibros) {
     *libros = malloc(cantidadLibros * sizeof(Libro));
     *cantidades = malloc(cantidadLibros * sizeof(int));
     if (!*libros || !*cantidades) return false;
@@ -180,7 +180,7 @@ static bool extraerCamposPedido(char* linea, Pedido* pedido) {
     if (!token) return false;
     pedido->cantidadLibros = atoi(token);
 
-    return extraerLibrosPedido(linea, &pedido->libros, &pedido->cantidadPorLibro, pedido->cantidadLibros);
+    return extraerLibrosPedido(&pedido->libros, &pedido->cantidadPorLibro, pedido->cantidadLibros);
 }
 
 
@@ -223,8 +223,13 @@ char* leerArchivo(const char* nombre) {
 }
 
 char* generarIDPedido(int* totalPedidos) {
-    char* id = malloc(5);
-    sprintf(id, "P%03d", *totalPedidos + 1);
+    char* id = malloc(MAX_ID);
+    if (!id) return NULL;
+    unsigned int siguiente = 1;
+    if (totalPedidos && *totalPedidos >= 0 && *totalPedidos < 999999999) {
+        siguiente = (unsigned int)(*totalPedidos + 1);
+    }
+    snprintf(id, MAX_ID, "P%03u", siguiente);
     return id;
 }
 
@@ -377,24 +382,6 @@ char* leerLineaAlloc(const char* prompt, size_t maxLen) {
     if (!fgets(buf, maxLen, stdin)) { free(buf); return NULL; }
     trim(buf);
     return buf;
-}
-
-static void trim_inplace(char* s) {
-    if (!s) return;
-    char *p = s, *q = s + strlen(s);
-    while (*p && isspace((unsigned char)*p)) p++;
-    while (q > p && isspace((unsigned char)q[-1])) q--;
-    size_t n = (size_t)(q - p);
-    memmove(s, p, n);
-    s[n] = '\0';
-}
-
-static char* dupstr_local(const char* s) {
-    if (!s) return NULL;
-    size_t n = strlen(s);
-    char* d = (char*)malloc(n + 1);
-    if (d) memcpy(d, s, n + 1);
-    return d;
 }
 
 // Se asegura de que no arrastre datos ni saltos de linea extra 
